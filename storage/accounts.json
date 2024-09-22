@@ -1,0 +1,17 @@
+[
+  {
+    "email": "baseA@test.com",
+    "password": "abc",
+    "role": "base"
+  },
+  {
+    "email": "baseB@test.com",
+    "password": "def",
+    "role": "enterprise"
+  },
+  {
+    "email": "admin@test.com",
+    "password": "ghi",
+    "role": "admin"
+  }
+]
