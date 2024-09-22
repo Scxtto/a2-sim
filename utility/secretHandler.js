@@ -27,7 +27,6 @@ async function getJWTSecret() {
 }
 
 async function getBucketSecret() {
-  const secret_name = "n11580062-jwt-bucket";
   const client = new SecretsManagerClient({
     region: "ap-southeast-2",
   });
