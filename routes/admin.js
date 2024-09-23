@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const { readAccounts, writeAccounts } = require("../utility/accountHelpers");
+const { retrieveAllHistory } = require("../utility/rdsHandler");
 
 // Route to get all accounts
-router.get("/getAccounts", (req, res) => {
-  const accounts = readAccounts();
-  res.status(200).json(accounts);
+router.get("/getHistory", authenticateJWT, async (req, res) => {
+  const history = retrieveAllHistory();
+  res.status(200).json(history);
 });
 
 // Route to add a new account

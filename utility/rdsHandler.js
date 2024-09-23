@@ -82,6 +82,40 @@ async function retrieveHistory(email) {
   }
 }
 
+async function retrieveAllHistory() {
+  const password = await getRDSSecret();
+  const address = await getRdsAddress();
+
+  const client = new Client({
+    host: address,
+    user: process.env.RDS_USER,
+    password: password,
+    database: "postgres",
+    port: 5432, // Default PostgreSQL port
+    ssl: { rejectUnauthorized: false },
+  });
+
+  try {
+    await client.connect();
+
+    // Query the database for the history associated with the email
+    const result = await client.query("SELECT * FROM history ");
+
+    // If results are found, return them
+    if (result.rows.length > 0) {
+      return result.rows;
+    } else {
+      return null; // No history found for this email
+    }
+  } catch (err) {
+    console.error("Error fetching history:", err);
+    throw err;
+  } finally {
+    // Always close the database connection
+    await client.end();
+  }
+}
+
 async function insertHistoryRecord(
   email,
   simUUID,
@@ -141,7 +175,7 @@ async function insertHistoryRecord(
   }
 }
 
-module.exports = { retrieveHistory, createHistoryTable, insertHistoryRecord };
+module.exports = { retrieveHistory, retrieveAllHistory, createHistoryTable, insertHistoryRecord };
 
 /*
 
