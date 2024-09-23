@@ -5,9 +5,10 @@ const runSimulation = require("../processes/simulation"); // Adjust the path as 
 const { v4: uuidv4 } = require("uuid"); // Use UUID for unique filenames
 const { authenticateJWT } = require("../middleware/authenticateJwt");
 const fs = require("fs");
-const { logResults } = require("../processes/logResults");
+//const { logResults } = require("../processes/logResults");
 const { writeVideoToBucket, getPresignedURL } = require("../utility/s3Handler");
-const { insertHistoryRecord } = require("../utility/rdsHandler");
+const { insertHistoryRecord, retrieveAllHistory } = require("../utility/rdsHandler");
+const { addHistory, retrieveAll } = require("../utility/dynamoHandler");
 
 const router = express.Router();
 
@@ -88,14 +89,21 @@ router.post("/", authenticateJWT, async (req, res) => {
           console.error(`FFmpeg process exited with code ${code}`);
           res.status(500).send("Error generating video");
         } else {
-          logResults(req.decodedemail, unique_id, simulationResults, simulationParams);
+          //logResults(req.decodedemail, unique_id, simulationResults, simulationParams);
           const resultData = {
             email: req.decodedemail,
             video: uniqueVideoName,
             results: simulationResults,
           };
 
-          fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
+          const historyData = await createHistoryObject();
+
+          await addHistory(req.decodedemail, historyData);
+          //fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
+
+          console.log(" history added successfully");
+          console.log("Attempting to retrieve history");
+          await retrieveAll();
 
           writeVideoToBucket(uniqueVideoName, videoPath);
 

@@ -48,4 +48,48 @@ async function createTable() {
   // Add more content here
 }
 
-module.exports = { createTable };
+async function addHistory(email, historyItem) {
+  const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
+  const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client);
+
+  const command = new DynamoDBLib.UpdateCommand({
+    TableName: tableName,
+    Key: { qutUsername, [sortKey]: email },
+    UpdateExpression: "SET #history = list_append(if_not_exists(#history, :empty_list), :historyItem)",
+    ExpressionAttributeNames: {
+      "#history": "history",
+    },
+    ExpressionAttributeValues: {
+      ":historyItem": [historyItem], // The new history item to append
+      ":empty_list": [], // Initialize as an empty list if history doesn't exist
+    },
+    ReturnValues: "UPDATED_NEW",
+  });
+
+  try {
+    const response = await docClient.send(command);
+    console.log("History added successfully:", response);
+  } catch (err) {
+    console.log("Error adding history:", err);
+  }
+}
+
+async function retrieveAll(email) {
+  const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
+  const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client);
+
+  const command = new DynamoDBLib.GetCommand({
+    TableName: tableName,
+    Key: { email },
+  });
+
+  try {
+    const response = await docClient.send(command);
+    console.log("Retrieve All Response:", response.Item);
+    return response.Item;
+  } catch (err) {
+    console.log("Error retrieving data:", err);
+  }
+}
+
+module.exports = { createTable, addHistory, retrieveAll };

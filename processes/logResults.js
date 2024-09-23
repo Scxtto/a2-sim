@@ -2,6 +2,16 @@ const fs = require("fs").promises;
 const path = require("path");
 const resultsFilePath = path.join(__dirname, "../storage/results.json");
 
+async function createHistoryObject(uuid, results, inputs) {
+  const historyLog = {
+    uuid: uuid,
+    inputs: inputs,
+    results: results,
+  };
+
+  return historyLog;
+}
+/*
 async function logResults(email, uuid, results, inputs) {
   // Function to read results from the file asynchronously
   const readResultsFromFile = async () => {
@@ -48,7 +58,8 @@ async function logResults(email, uuid, results, inputs) {
     console.error("Error logging results:", error);
   }
 }
+  */
 
 module.exports = {
-  logResults,
+  createHistoryObject,
 };
