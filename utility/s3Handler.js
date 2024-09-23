@@ -40,8 +40,10 @@ async function deleteFromLocal(filePath) {
 
 async function getPresignedURL(videoTitle) {
   try {
+    const bucket = await getBucketSecret();
+
     const command = new S3.GetObjectCommand({
-      Bucket: process.env.S3_BUCKET_NAME,
+      Bucket: bucket,
       Key: videoTitle,
     });
     const presignedURL = await S3Presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
