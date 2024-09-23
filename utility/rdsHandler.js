@@ -34,10 +34,6 @@ async function createHistoryTable() {
         );
       `;
 
-    const dropTableQuery = `DROP TABLE IF EXISTS history;`;
-    await client.query(dropTableQuery);
-    console.log("Table 'history' dropped successfully.");
-
     // Execute the SQL query to create the table
     await client.query(createTableQuery);
     console.log("Table 'history' created successfully.");
