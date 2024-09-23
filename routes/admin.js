@@ -9,7 +9,7 @@ const { authenticateJWT } = require("../middleware/authenticateJwt");
 router.get("/getHistory", authenticateJWT, async (req, res) => {
   const history = await retrieveAllHistory();
   console.log("History retrieved successfully");
-  console.log(history);
+  //console.log(history);
   res.status(200).json(history);
 });
 

@@ -101,7 +101,7 @@ router.post("/", authenticateJWT, async (req, res) => {
 
           const simEnd = process.hrtime(simStart);
           const duration = simEnd[0] + simEnd[1] / 1e6 / 1000;
-          const costEst = 0.096 * duration;
+          const costEst = (0.096 / 3600) * duration;
           const fileSize = fs.statSync(resultsPath).size / 1024 / 1024;
 
           //console.log(`Duration: ${duration.toFixed(2)} seconds`);
