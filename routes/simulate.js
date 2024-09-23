@@ -58,8 +58,7 @@ router.post("/", authenticateJWT, async (req, res) => {
     const videoPath = path.join(__dirname, "..", "output", uniqueVideoName);
     const resultsPath = path.join(__dirname, "..", "output", uniqueResultsName);
 
-    let simStart = process.hrtime();
-    let simEnd = null;
+    const simStart = process.hrtime();
 
     console.log("Starting simulation with params:", simulationParams);
 
@@ -99,7 +98,8 @@ router.post("/", authenticateJWT, async (req, res) => {
 
           writeVideoToBucket(uniqueVideoName, videoPath);
 
-          const duration = endTime[0] * 1000 + endTime[1] / 1e6 / 1000;
+          const simEnd = process.hrtime(simStart);
+          const duration = simEnd[0] * 1000 + simEnd[1] / 1e6 / 1000;
           const costEst = 0.096 * duration;
           const fileSize = fs.statSync(resultsPath).size / 1024 / 1024;
 
@@ -125,21 +125,7 @@ router.post("/", authenticateJWT, async (req, res) => {
           });
         }
       } catch (error) {
-        endTime = process.hrtime(startTime);
-        const duration = endTime[0] * 1000 + endTime[1] / 1e6 / 1000;
-
         console.error("Error processing request:", error);
-        await insertHistoryRecord(
-          req.decodedemail,
-          unique_id,
-          simulationTimestamp,
-          duration * 0.096,
-          "failed",
-          "m5.large",
-          null,
-          duration,
-          error.message
-        );
         res.status(500).send("Error processing request: " + error.message);
       }
     });
@@ -149,7 +135,6 @@ router.post("/", authenticateJWT, async (req, res) => {
     });
 
     await runSimulation(simulationParams, ffmpeg, simulationResults, aspectRatio);
-    simEnd = process.hrtime(simStart);
 
     ffmpeg.stdin.end();
   } catch (error) {
