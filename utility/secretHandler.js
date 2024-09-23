@@ -68,7 +68,7 @@ async function getRDSSecret() {
   }
 
   // Parse the secret string and return only the bucket
-  const secret = response.SecretString;
+  const secret = JSON.parse(response.SecretString);
   return secret.password;
 }
 
