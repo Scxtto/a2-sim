@@ -8,6 +8,8 @@ const { authenticateJWT } = require("../middleware/authenticateJwt");
 // Route to get all accounts
 router.get("/getHistory", authenticateJWT, async (req, res) => {
   const history = retrieveAllHistory();
+  console.log("History retrieved successfully");
+  console.log(history);
   res.status(200).json(history);
 });
 
