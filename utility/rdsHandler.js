@@ -101,6 +101,9 @@ async function retrieveAllHistory() {
     // Query the database for the history associated with the email
     const result = await client.query("SELECT * FROM history ");
 
+    console.log(result.rows);
+    console.log("History retrieved successfully");
+
     // If results are found, return them
     if (result.rows.length > 0) {
       return result.rows;
