@@ -120,7 +120,7 @@ router.post("/", authenticateJWT, async (req, res) => {
             null
           );
 
-          const presignedURL = await getPresignedURL(uniqueResultsName);
+          const presignedURL = await getPresignedURL(uniqueVideoName);
 
           res.json({
             videoUrl: presignedURL,
