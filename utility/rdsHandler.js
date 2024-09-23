@@ -2,37 +2,6 @@ const { Client } = require("pg");
 const { getRdsAddress } = require("./paramHandler");
 const { getRDSSecret } = require("./secretHandler");
 
-async function dropCreaturePresetsTable() {
-  const password = await getRDSSecret();
-  const address = await getRdsAddress();
-
-  const client = new Client({
-    host: address,
-    user: process.env.RDS_USER,
-    password: password,
-    database: "postgres",
-    port: 5432, // Default PostgreSQL port
-    ssl: { rejectUnauthorized: false },
-  });
-
-  try {
-    await client.connect();
-
-    // SQL statement to drop the table
-    const dropTableQuery = `DROP TABLE IF EXISTS creature_presets;`;
-
-    // Execute the SQL query to drop the table
-    await client.query(dropTableQuery);
-    console.log("Table 'creature_presets' dropped successfully.");
-  } catch (err) {
-    console.error("Error dropping table:", err);
-    throw err;
-  } finally {
-    // Always close the database connection
-    await client.end();
-  }
-}
-
 async function createHistoryTable() {
   const password = await getRDSSecret();
   const address = await getRdsAddress();
@@ -168,7 +137,7 @@ async function insertHistoryRecord(
   }
 }
 
-module.exports = { retrieveHistory, createHistoryTable, insertHistoryRecord, dropCreaturePresetsTable };
+module.exports = { retrieveHistory, createHistoryTable, insertHistoryRecord };
 
 /*
 
