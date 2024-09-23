@@ -29,10 +29,14 @@ async function createHistoryTable() {
           status VARCHAR(50) NOT NULL,
           node_type VARCHAR(50),
           result_size DECIMAL(10, 2),
-          duration INTERVAL,
+          duration DECIMAL(10, 2),
           failure_reason VARCHAR(255)
         );
       `;
+
+    const dropTableQuery = `DROP TABLE IF EXISTS history;`;
+    await client.query(dropTableQuery);
+    console.log("Table 'history' dropped successfully.");
 
     // Execute the SQL query to create the table
     await client.query(createTableQuery);
