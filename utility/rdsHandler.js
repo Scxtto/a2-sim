@@ -2,7 +2,7 @@ const { Client } = require("pg");
 const { getRdsAddress } = require("./paramHandler");
 const { getRDSSecret } = require("./secretHandler");
 
-async function retrievePrests(email) {
+async function retrievePresets(email) {
   const password = await getRDSSecret();
   const address = await getRdsAddress();
 
@@ -10,8 +10,9 @@ async function retrievePrests(email) {
     host: address,
     user: process.env.RDS_USER,
     password: password,
-    database: "n11580062-a2-rds",
+    database: "postgres",
     port: 5432, // Default PostgreSQL port
+    ssl: { rejectUnauthorized: false },
   });
 
   try {
@@ -43,8 +44,9 @@ async function createTable() {
     host: address, // Retrieve RDS address
     user: process.env.RDS_USER, // Environment variable for RDS user
     password: password, // Use the awaited secret for password
-    database: "n11580062-a2-rds", // Database name
+    database: "postgres", // Database name
     port: 5432, // Default PostgreSQL port
+    ssl: { rejectUnauthorized: false },
   });
 
   try {
@@ -55,7 +57,7 @@ async function createTable() {
         CREATE TABLE IF NOT EXISTS creature_presets (
           id SERIAL PRIMARY KEY,
           email VARCHAR(255) NOT NULL,
-          preset JSONB NOT NULL,
+          preset JSONB NOT NULL
         );
       `;
 
@@ -71,4 +73,41 @@ async function createTable() {
   }
 }
 
-module.exports = { retrievePrests, createTable };
+async function upsertPreset(email, newPresetData) {
+  const password = await getRDSSecret();
+  const address = await getRdsAddress();
+
+  const client = new Client({
+    host: address,
+    user: process.env.RDS_USER,
+    password: password,
+    database: "postgres",
+    port: 5432, // Default PostgreSQL port
+    ssl: { rejectUnauthorized: false },
+  });
+
+  try {
+    await client.connect();
+
+    // Insert a new row or update the existing one
+    const upsertQuery = `
+      INSERT INTO creature_presets (email, preset)
+      VALUES ($1, $2)
+      ON CONFLICT (email) 
+      DO UPDATE SET preset = $2;
+    `;
+
+    const result = await client.query(upsertQuery, [email, newPresetData]);
+
+    if (result.rowCount > 0) {
+      console.log("Preset upserted successfully.");
+    }
+  } catch (err) {
+    console.error("Error upserting preset:", err);
+    throw err;
+  } finally {
+    await client.end();
+  }
+}
+
+module.exports = { retrievePresets, createTable, upsertPreset };
