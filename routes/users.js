@@ -7,7 +7,7 @@ const { retrievePresets, upsertPreset } = require("../utility/rdsHandler");
 // Route to save a preset
 router.post("/:email/savePreset", authenticateJWT, authenticateEmail, async (req, res) => {
   const { email } = req.params;
-  const preset = req.body; // Expecting the preset to be sent in the request body
+  const preset = JSON.stringify(req.body); // Expecting the preset to be sent in the request body
   console.log("Preset received");
   console.log(preset);
 
