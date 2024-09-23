@@ -58,8 +58,8 @@ router.post("/", authenticateJWT, async (req, res) => {
     const videoPath = path.join(__dirname, "..", "output", uniqueVideoName);
     const resultsPath = path.join(__dirname, "..", "output", uniqueResultsName);
 
-    const simStart = null;
-    const simEnd = null;
+    let simStart = process.hrtime();
+    let simEnd = null;
 
     console.log("Starting simulation with params:", simulationParams);
 
@@ -148,7 +148,6 @@ router.post("/", authenticateJWT, async (req, res) => {
       console.error("Error writing to FFmpeg stdin:", error);
     });
 
-    simStart = process.hrtime();
     await runSimulation(simulationParams, ffmpeg, simulationResults, aspectRatio);
     simEnd = process.hrtime(simStart);
 
