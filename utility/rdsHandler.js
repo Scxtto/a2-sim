@@ -83,8 +83,8 @@ async function retrieveHistory(email) {
 async function insertHistoryRecord(
   email,
   simUUID,
-  datetime,
   computeCost,
+  datetime,
   status,
   nodeType = null,
   resultSize = null,
@@ -108,16 +108,16 @@ async function insertHistoryRecord(
 
     // Insert a new history record
     const insertQuery = `
-      INSERT INTO history (email, sim_uuid, datetime, compute_cost, status, node_type, result_size, duration, failure_reason)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO history (email, sim_uuid, compute_cost, datetime, status, node_type, result_size, duration, failure_reason)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *;
     `;
 
     const result = await client.query(insertQuery, [
       email,
       simUUID,
-      datetime,
       computeCost,
+      datetime,
       status,
       nodeType,
       resultSize,

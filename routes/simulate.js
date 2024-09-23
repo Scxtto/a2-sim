@@ -111,8 +111,8 @@ router.post("/", authenticateJWT, async (req, res) => {
           await insertHistoryRecord(
             req.decodedemail,
             unique_id,
-            simulationTimestamp,
             costEst,
+            simulationTimestamp,
             "success",
             "m5.large",
             fileSize,
