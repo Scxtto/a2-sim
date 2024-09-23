@@ -1,43 +1,56 @@
 const express = require("express");
+const fs = require("fs");
+const path = require("path");
 const { authenticateJWT } = require("../middleware/authenticateJwt");
 const { authenticateEmail } = require("../middleware/authenticateEmail");
 const router = express.Router();
-const { retrievePresets, upsertPreset } = require("../utility/rdsHandler");
+const presetsFilePath = path.join(__dirname, "../storage/presets.json");
 
-// Route to save a preset
-router.post("/:email/savePreset", authenticateJWT, authenticateEmail, async (req, res) => {
-  const { email } = req.params;
-  const preset = JSON.stringify(req.body); // Expecting the preset to be sent in the request body
-  console.log("Preset received");
-  console.log(preset);
-
-  try {
-    // Use the upsertPreset function to either insert a new preset or update an existing one
-    await upsertPreset(email, preset);
-
-    res.json({ message: "Preset saved/updated successfully" });
-  } catch (error) {
-    console.error("Error saving preset:", error);
-    res.status(500).json({ message: "Error saving preset" });
+const readPresetsFromFile = () => {
+  if (!fs.existsSync(presetsFilePath)) {
+    return {};
   }
+  const data = fs.readFileSync(presetsFilePath, "utf-8");
+  return JSON.parse(data);
+};
+
+// Utility function to write presets to the file
+
+const writePresetsToFile = (presets) => {
+  fs.writeFileSync(presetsFilePath, JSON.stringify(presets, null, 2), "utf-8");
+};
+// Route to save a preset
+router.post("/:email/savePreset", authenticateJWT, authenticateEmail, (req, res) => {
+  const { email } = req.params;
+  const preset = req.body;
+
+  // Read existing presets
+  const presets = readPresetsFromFile();
+
+  // Ensure the email key exists in the presets object
+  if (!presets[email]) {
+    presets[email] = [];
+  }
+
+  // Add the new preset to the user's list
+  presets[email].push(preset);
+
+  // Write the updated presets back to the file
+  writePresetsToFile(presets);
+
+  res.json({ message: "Preset saved successfully" });
 });
 
 // Route to load presets
-router.get("/:email/loadPresets", authenticateJWT, authenticateEmail, async (req, res) => {
+router.get("/:email/loadPresets", authenticateJWT, authenticateEmail, (req, res) => {
   const { email } = req.params;
 
-  try {
-    const userPresets = await retrievePresets(email);
+  // Read existing presets
+  const presets = readPresetsFromFile();
 
-    if (userPresets) {
-      res.json(userPresets); // Return the presets stored in the database
-    } else {
-      res.json([]); // If no presets are found, return an empty array
-    }
-  } catch (error) {
-    console.error("Error loading presets:", error);
-    res.status(500).json({ message: "Error loading presets" });
-  }
+  // Return the presets for the specified email
+  const userPresets = presets[email] || [];
+  res.json(userPresets);
 });
 
 module.exports = router;

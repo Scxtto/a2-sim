@@ -9,7 +9,7 @@ const usersRoutes = require("./routes/users");
 const loginRoutes = require("./routes/login");
 const simulateRoutes = require("./routes/simulate");
 const adminRoutes = require("./routes/admin");
-const { createTable } = require("./utility/rdsHandler");
+const { createHistoryTable, dropCreaturePresetsTable } = require("./utility/rdsHandler");
 
 const app = express();
 const port = 5000;
@@ -23,7 +23,8 @@ app.use("/simulate", simulateRoutes);
 app.use("/admin", adminRoutes);
 app.use("/videos", express.static(path.join(__dirname, "output")));
 
-createTable();
+dropCreaturePresetsTable();
+createHistoryTable();
 
 app.listen(port, "0.0.0.0", () => {
   console.log("Server running on port 5000");
