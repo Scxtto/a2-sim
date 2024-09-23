@@ -19,7 +19,7 @@ async function writeVideoToBucket(videoTitle, filePath) {
       })
     );
 
-    console.log(`File uploaded successfully with UUID ${uuid}:`, response);
+    console.log(`File uploaded successfully with UUID ${videoTitle}:`, response);
 
     deleteFromLocal(filePath);
     console.log("Local file deleted successfully:", filePath);

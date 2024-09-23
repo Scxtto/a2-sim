@@ -24,7 +24,7 @@ async function createHistoryTable() {
           id SERIAL PRIMARY KEY,
           email VARCHAR(255) NOT NULL,
           sim_uuid UUID NOT NULL,
-          datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          datetime TIMESTAMP NOT NULL,
           compute_cost DECIMAL(10, 2) NOT NULL,
           status VARCHAR(50) NOT NULL,
           node_type VARCHAR(50),
@@ -83,6 +83,7 @@ async function retrieveHistory(email) {
 async function insertHistoryRecord(
   email,
   simUUID,
+  datetime,
   computeCost,
   status,
   nodeType = null,
@@ -107,7 +108,7 @@ async function insertHistoryRecord(
 
     // Insert a new history record
     const insertQuery = `
-      INSERT INTO history (email, sim_uuid, compute_cost, status, node_type, result_size, duration, failure_reason)
+      INSERT INTO history (email, sim_uuid, datetime, compute_cost, status, node_type, result_size, duration, failure_reason)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *;
     `;
@@ -115,6 +116,7 @@ async function insertHistoryRecord(
     const result = await client.query(insertQuery, [
       email,
       simUUID,
+      datetime,
       computeCost,
       status,
       nodeType,
