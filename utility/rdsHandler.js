@@ -20,7 +20,7 @@ async function createHistoryTable() {
 
     // SQL statement to create the history table
     const createTableQuery = `
-        CREATE TABLE IF NOT EXISTS history (
+        CREATE TABLE IF NOT EXISTS  (
           id SERIAL PRIMARY KEY,
           email VARCHAR(255) NOT NULL,
           sim_uuid UUID NOT NULL,
