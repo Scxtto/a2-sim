@@ -3,6 +3,7 @@ const router = express.Router();
 
 const { readAccounts, writeAccounts } = require("../utility/accountHelpers");
 const { retrieveAllHistory } = require("../utility/rdsHandler");
+const { authenticateJWT } = require("../middleware/authenticateJwt");
 
 // Route to get all accounts
 router.get("/getHistory", authenticateJWT, async (req, res) => {
