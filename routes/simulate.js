@@ -104,9 +104,9 @@ router.post("/", authenticateJWT, async (req, res) => {
           const costEst = 0.096 * duration;
           const fileSize = fs.statSync(resultsPath).size / 1024 / 1024;
 
-          console.log(`Duration: ${duration.toFixed(2)} seconds`);
-          console.log(`Cost Estimate: $${costEst.toFixed(2)}`);
-          console.log(`Result file size: ${fileSize.toFixed(2)} MB`);
+          //console.log(`Duration: ${duration.toFixed(2)} seconds`);
+          //console.log(`Cost Estimate: $${costEst.toFixed(2)}`);
+          //console.log(`Result file size: ${fileSize.toFixed(2)} MB`);
 
           await insertHistoryRecord(
             req.decodedemail,

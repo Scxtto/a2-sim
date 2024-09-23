@@ -19,10 +19,10 @@ async function writeVideoToBucket(videoTitle, filePath) {
       })
     );
 
-    console.log(`File uploaded successfully with UUID ${videoTitle}:`, response);
+    //console.log(`File uploaded successfully with UUID ${videoTitle}:`, response);
 
     deleteFromLocal(filePath);
-    console.log("Local file deleted successfully:", filePath);
+    //console.log("Local file deleted successfully:", filePath);
   } catch (err) {
     console.error("Error uploading file to S3:", err);
   }
@@ -48,8 +48,8 @@ async function getPresignedURL(videoTitle) {
     });
     const presignedURL = await S3Presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
-    console.log("Pre-signed URL to get the object:");
-    console.log(presignedURL);
+    //console.log("Pre-signed URL to get the object:");
+    //console.log(presignedURL);
 
     return presignedURL;
   } catch (err) {
