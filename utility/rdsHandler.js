@@ -18,7 +18,7 @@ async function createHistoryTable() {
   try {
     await client.connect();
 
-    const dropTableQuery = `DROP TABLE IF EXISTS history;`;
+    //const dropTableQuery = `DROP TABLE IF EXISTS history;`;
     // SQL statement to create the history table
     const createTableQuery = `
         CREATE TABLE IF NOT EXISTS history (
@@ -36,7 +36,7 @@ async function createHistoryTable() {
       `;
 
     // Execute the SQL query to create the table
-    await client.query(dropTableQuery);
+    //await client.query(dropTableQuery);
     await client.query(createTableQuery);
     console.log("Table 'history' created successfully.");
   } catch (err) {
