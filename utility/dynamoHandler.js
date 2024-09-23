@@ -47,3 +47,5 @@ async function createTable() {
 
   // Add more content here
 }
+
+module.exports = { createTable };

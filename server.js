@@ -10,6 +10,7 @@ const loginRoutes = require("./routes/login");
 const simulateRoutes = require("./routes/simulate");
 const adminRoutes = require("./routes/admin");
 const { createHistoryTable } = require("./utility/rdsHandler");
+const { createTable } = require("./utility/dynamoHandler");
 
 const app = express();
 const port = 5000;
@@ -23,6 +24,7 @@ app.use("/simulate", simulateRoutes);
 app.use("/admin", adminRoutes);
 app.use("/videos", express.static(path.join(__dirname, "output")));
 
+createTable();
 createHistoryTable();
 
 app.listen(port, "0.0.0.0", () => {
