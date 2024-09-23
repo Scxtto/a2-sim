@@ -7,8 +7,9 @@ const { authenticateJWT } = require("../middleware/authenticateJwt");
 const fs = require("fs");
 //const { logResults } = require("../processes/logResults");
 const { writeVideoToBucket, getPresignedURL } = require("../utility/s3Handler");
-const { insertHistoryRecord, retrieveAllHistory } = require("../utility/rdsHandler");
+const { insertHistoryRecord } = require("../utility/rdsHandler");
 const { addHistory, retrieveAll } = require("../utility/dynamoHandler");
+const { createHistoryObject } = require("../processes/logResults");
 
 const router = express.Router();
 
