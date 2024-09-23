@@ -1,16 +1,18 @@
 const S3 = require("@aws-sdk/client-s3");
 const S3Presigner = require("@aws-sdk/s3-request-presigner");
 const s3Client = new S3.S3Client({ region: "ap-southeast-2" });
+const { getBucketSecret } = require("./secretHandler");
 
 const fs = require("fs");
 
 async function writeVideoToBucket(videoTitle, filePath) {
   try {
+    const bucket = await getBucketSecret();
     const fileStream = fs.createReadStream(filePath);
 
     const response = await s3Client.send(
       new S3.PutObjectCommand({
-        Bucket: process.env.S3_BUCKET_NAME,
+        Bucket: bucket,
         Key: videoTitle,
         Body: fileStream,
         ContentType: "video/mp4",

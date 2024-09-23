@@ -7,6 +7,7 @@ const { authenticateJWT } = require("../middleware/authenticateJwt");
 const fs = require("fs");
 const { logResults } = require("../processes/logResults");
 const { writeVideoToBucket, getPresignedURL } = require("../utility/s3Handler");
+const { insertHistoryRecord } = require("../utility/rdsHandler");
 
 const router = express.Router();
 
@@ -99,7 +100,7 @@ router.post("/", authenticateJWT, async (req, res) => {
           writeVideoToBucket(uniqueVideoName, videoPath);
 
           const simEnd = process.hrtime(simStart);
-          const duration = simEnd[0] * 1000 + simEnd[1] / 1e6 / 1000;
+          const duration = simEnd[0] + simEnd[1] / 1e6 / 1000;
           const costEst = 0.096 * duration;
           const fileSize = fs.statSync(resultsPath).size / 1024 / 1024;
 
