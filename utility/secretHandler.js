@@ -69,7 +69,7 @@ async function getRDSSecret() {
 
   // Parse the secret string and return only the bucket
   const secret = response.SecretString;
-  return secret;
+  return secret.password;
 }
 
 module.exports = { getJWTSecret, getBucketSecret, getRDSSecret };
