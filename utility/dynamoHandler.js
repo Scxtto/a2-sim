@@ -9,7 +9,7 @@ async function createTable() {
   const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
   const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client);
 
-  command = new DynamoDB.CreateTableCommand({
+  const command = new DynamoDB.CreateTableCommand({
     TableName: tableName,
     AttributeDefinitions: [
       {
@@ -42,19 +42,20 @@ async function createTable() {
     const response = await client.send(command);
     console.log("Create Table command response:", response);
   } catch (err) {
-    console.log(err);
+    console.log("Error creating table:", err);
   }
-
-  // Add more content here
 }
 
+// Function to add history to a specific email
 async function addHistory(email, historyItem) {
   const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
-  const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client);
+  const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client, {
+    removeUndefinedValues: true, // Ensures that undefined values are removed
+  });
 
   const command = new DynamoDBLib.UpdateCommand({
     TableName: tableName,
-    Key: { qutUsername, [sortKey]: email },
+    Key: { "qut-username": qutUsername, [sortKey]: email },
     UpdateExpression: "SET #history = list_append(if_not_exists(#history, :empty_list), :historyItem)",
     ExpressionAttributeNames: {
       "#history": "history",
@@ -74,19 +75,25 @@ async function addHistory(email, historyItem) {
   }
 }
 
+// Function to retrieve all history for a specific email
 async function retrieveAll(email) {
   const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
   const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client);
 
   const command = new DynamoDBLib.GetCommand({
     TableName: tableName,
-    Key: { email },
+    Key: { "qut-username": qutUsername, [sortKey]: email },
   });
 
   try {
     const response = await docClient.send(command);
-    console.log("Retrieve All Response:", response.Item);
-    return response.Item;
+    if (response.Item) {
+      console.log("Retrieve All Response:", response.Item);
+      return response.Item;
+    } else {
+      console.log("No data found for the provided email.");
+      return null;
+    }
   } catch (err) {
     console.log("Error retrieving data:", err);
   }
