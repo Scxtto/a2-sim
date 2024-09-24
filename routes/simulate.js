@@ -104,7 +104,7 @@ router.post("/", authenticateJWT, async (req, res) => {
 
           console.log(" history added successfully");
           console.log("Attempting to retrieve history");
-          await retrieveAll();
+          await retrieveAll(req.decodedemail);
 
           writeVideoToBucket(uniqueVideoName, videoPath);
 
