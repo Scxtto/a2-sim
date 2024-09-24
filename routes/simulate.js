@@ -97,7 +97,7 @@ router.post("/", authenticateJWT, async (req, res) => {
             results: simulationResults,
           };
 
-          const historyData = await createHistoryObject();
+          const historyData = await createHistoryObject(unique_id, simulationParams, simulationResults);
 
           await addHistory(req.decodedemail, historyData);
           //fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
