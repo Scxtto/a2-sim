@@ -16,6 +16,7 @@ router.post("/", async (req, res) => {
   const clientId = await getClientId();
   console.log("Logging in user: ", email);
   console.log("Using password: ", password);
+  console.log("Using client ID: ", clientId);
 
   const command = new InitiateAuthCommand({
     AuthFlow: "USER_PASSWORD_AUTH", // Standard auth flow for user/password
