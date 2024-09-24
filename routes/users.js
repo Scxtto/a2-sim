@@ -5,20 +5,8 @@ const { authenticateJWT } = require("../middleware/authenticateJwt");
 const { authenticateEmail } = require("../middleware/authenticateEmail");
 const router = express.Router();
 const presetsFilePath = path.join(__dirname, "../storage/presets.json");
+const { addPreset, loadPresets } = require("../utility/dynamoHandler");
 
-const readPresetsFromFile = () => {
-  if (!fs.existsSync(presetsFilePath)) {
-    return {};
-  }
-  const data = fs.readFileSync(presetsFilePath, "utf-8");
-  return JSON.parse(data);
-};
-
-// Utility function to write presets to the file
-
-const writePresetsToFile = (presets) => {
-  fs.writeFileSync(presetsFilePath, JSON.stringify(presets, null, 2), "utf-8");
-};
 // Route to save a preset
 router.post("/:email/savePreset", authenticateJWT, authenticateEmail, async (req, res) => {
   const { email } = req.params;
