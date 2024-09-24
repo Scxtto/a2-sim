@@ -1,15 +1,17 @@
 const express = require("express");
+const router = express.Router();
 const {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
 
 const { getClientId } = require("../utility/secretHandler");
-const router = express.Router();
+
 const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" }); // Change region as necessary
 
 // Route to login a user
 router.post("/login", async (req, res) => {
+  console.log("Logging in user: ", req.body);
   const { email, password } = req.body;
   const clientId = await getClientId();
   console.log("Logging in user: ", email);
