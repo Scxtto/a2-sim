@@ -63,7 +63,7 @@ router.post("/", authenticateJWT, async (req, res) => {
 
     const simStart = process.hrtime();
 
-    console.log("Starting simulation with params:", simulationParams);
+    //console.log("Starting simulation with params:", simulationParams);
 
     const ffmpeg = spawn("ffmpeg", [
       "-y",
@@ -102,9 +102,9 @@ router.post("/", authenticateJWT, async (req, res) => {
           await addHistory(req.decodedemail, historyData);
           //fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
 
-          console.log(" history added successfully");
-          console.log("Attempting to retrieve history");
-          await retrieveAll(req.decodedemail);
+          //console.log(" history added successfully");
+          //console.log("Attempting to retrieve history");
+          //await retrieveAll(req.decodedemail);
 
           writeVideoToBucket(uniqueVideoName, videoPath);
 

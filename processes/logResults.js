@@ -1,11 +1,7 @@
-const fs = require("fs").promises;
-const path = require("path");
-const resultsFilePath = path.join(__dirname, "../storage/results.json");
-
 async function createHistoryObject(uuid, results, inputs) {
-  console.log("Creating history object for UUID:", uuid);
-  console.log("Results:", results);
-  console.log("Inputs:", inputs);
+  //console.log("Creating history object for UUID:", uuid);
+  //console.log("Results:", results);
+  //console.log("Inputs:", inputs);
 
   const historyLog = {
     uuid: uuid,

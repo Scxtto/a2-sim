@@ -50,8 +50,8 @@ async function createTable() {
 async function addHistory(email, historyItem) {
   const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
 
-  console.log("Adding history for email:", email);
-  console.log("History item:", historyItem);
+  //console.log("Adding history for email:", email);
+  //console.log("History item:", historyItem);
 
   const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client, {
     removeUndefinedValues: true, // Ensures that undefined values are removed
@@ -73,7 +73,7 @@ async function addHistory(email, historyItem) {
 
   try {
     const response = await docClient.send(command);
-    console.log("History added successfully:", response);
+    //console.log("History added successfully:", response);
   } catch (err) {
     console.log("Error adding history:", err);
   }
@@ -83,8 +83,8 @@ async function addHistory(email, historyItem) {
 async function addPreset(email, presetItem) {
   const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
 
-  console.log("Adding preset for email:", email);
-  console.log("Preset item:", presetItem);
+  // console.log("Adding preset for email:", email);
+  //console.log("Preset item:", presetItem);
 
   const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client, {
     removeUndefinedValues: true, // Ensures that undefined values are removed
@@ -106,7 +106,7 @@ async function addPreset(email, presetItem) {
 
   try {
     const response = await docClient.send(command);
-    console.log("Preset added successfully:", response);
+    //console.log("Preset added successfully:", response);
   } catch (err) {
     console.log("Error adding preset:", err);
   }
@@ -116,7 +116,7 @@ async function addPreset(email, presetItem) {
 async function loadPresets(email) {
   const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
 
-  console.log("Loading presets for email:", email);
+  //console.log("Loading presets for email:", email);
 
   const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client);
 
@@ -132,10 +132,10 @@ async function loadPresets(email) {
   try {
     const response = await docClient.send(command);
     if (response.Item && response.Item.presets) {
-      console.log("Presets loaded successfully:", response.Item.presets);
+      //console.log("Presets loaded successfully:", response.Item.presets);
       return response.Item.presets;
     } else {
-      console.log("No presets found for this email.");
+      //console.log("No presets found for this email.");
       return [];
     }
   } catch (err) {
@@ -157,7 +157,7 @@ async function retrieveAll(email) {
   try {
     const response = await docClient.send(command);
     if (response.Item) {
-      console.log("Retrieve All Response:", response.Item);
+      //console.log("Retrieve All Response:", response.Item);
       return response.Item;
     } else {
       console.log("No data found for the provided email.");
