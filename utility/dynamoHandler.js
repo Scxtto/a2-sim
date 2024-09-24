@@ -49,6 +49,10 @@ async function createTable() {
 // Function to add history to a specific email
 async function addHistory(email, historyItem) {
   const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
+
+  console.log("Adding history for email:", email);
+  console.log("History item:", historyItem);
+
   const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client, {
     removeUndefinedValues: true, // Ensures that undefined values are removed
   });
