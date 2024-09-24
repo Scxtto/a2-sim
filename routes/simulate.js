@@ -4,12 +4,12 @@ const { spawn } = require("child_process");
 const runSimulation = require("../processes/simulation"); // Adjust the path as necessary
 const { v4: uuidv4 } = require("uuid"); // Use UUID for unique filenames
 const { authenticateJWT } = require("../middleware/authenticateJwt");
-const fs = require("fs");
 //const { logResults } = require("../processes/logResults");
 const { writeVideoToBucket, getPresignedURL } = require("../utility/s3Handler");
 const { insertHistoryRecord } = require("../utility/rdsHandler");
 const { addHistory, retrieveAll } = require("../utility/dynamoHandler");
 const { createHistoryObject } = require("../processes/logResults");
+const { TextEncoder } = require("util"); // For encoding the JSON string into bytes
 
 const router = express.Router();
 
@@ -111,7 +111,10 @@ router.post("/", authenticateJWT, async (req, res) => {
           const simEnd = process.hrtime(simStart);
           const duration = simEnd[0] + simEnd[1] / 1e6 / 1000;
           const costEst = (0.096 / 3600) * duration;
-          const fileSize = fs.statSync(resultsPath).size / 1024 / 1024;
+
+          const jsonString = JSON.stringify(resultData);
+          const encoder = new TextEncoder();
+          const fileSize = encoder.encode(jsonString).length / 1024 / 1024;
 
           //console.log(`Duration: ${duration.toFixed(2)} seconds`);
           //console.log(`Cost Estimate: $${costEst.toFixed(2)}`);
