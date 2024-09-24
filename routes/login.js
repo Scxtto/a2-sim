@@ -12,6 +12,8 @@ const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" }); 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const clientId = await getClientId();
+  console.log("Logging in user: ", email);
+  console.log("Using password: ", password);
 
   const command = new InitiateAuthCommand({
     AuthFlow: "USER_PASSWORD_AUTH", // Standard auth flow for user/password
