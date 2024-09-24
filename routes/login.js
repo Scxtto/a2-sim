@@ -10,7 +10,7 @@ const { getClientId } = require("../utility/secretHandler");
 const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" }); // Change region as necessary
 
 // Route to login a user
-router.post("/login", async (req, res) => {
+router.post("/", async (req, res) => {
   console.log("Logging in user: ", req.body);
   const { email, password } = req.body;
   const clientId = await getClientId();
