@@ -72,4 +72,52 @@ async function getRDSSecret() {
   return secret.password;
 }
 
-module.exports = { getJWTSecret, getBucketSecret, getRDSSecret };
+// New function to retrieve the Cognito User Pool ID
+async function getUserPoolId() {
+  const client = new SecretsManagerClient({
+    region: "ap-southeast-2",
+  });
+
+  let response;
+
+  try {
+    response = await client.send(
+      new GetSecretValueCommand({
+        SecretId: process.env.COGNITO_SECRET, // Assumes you stored the pool ID under COGNITO_SECRET
+        VersionStage: "AWSCURRENT",
+      })
+    );
+  } catch (error) {
+    console.error("Error fetching User Pool ID:", error);
+    throw error;
+  }
+
+  const secret = JSON.parse(response.SecretString);
+  return secret.user_id;
+}
+
+// New function to retrieve the Cognito Client ID
+async function getClientId() {
+  const client = new SecretsManagerClient({
+    region: "ap-southeast-2",
+  });
+
+  let response;
+
+  try {
+    response = await client.send(
+      new GetSecretValueCommand({
+        SecretId: process.env.COGNITO_SECRET, // Assumes you stored the client ID under COGNITO_SECRET
+        VersionStage: "AWSCURRENT",
+      })
+    );
+  } catch (error) {
+    console.error("Error fetching Client ID:", error);
+    throw error;
+  }
+
+  const secret = JSON.parse(response.SecretString);
+  return secret.client_id;
+}
+
+module.exports = { getJWTSecret, getBucketSecret, getRDSSecret, getUserPoolId, getClientId };
