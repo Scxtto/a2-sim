@@ -10,6 +10,7 @@ const loginRoutes = require("./routes/login");
 const registerRoutes = require("./routes/register");
 const simulateRoutes = require("./routes/simulate");
 const adminRoutes = require("./routes/admin");
+const mfaRoutes = require("./routes/mfa");
 const { createHistoryTable } = require("./utility/rdsHandler");
 const { createTable } = require("./utility/dynamoHandler");
 
@@ -23,6 +24,7 @@ app.use("/users", usersRoutes);
 app.use("/login", loginRoutes);
 app.use("/register", registerRoutes);
 app.use("/simulate", simulateRoutes);
+app.use("/mfa", mfaRoutes);
 app.use("/admin", adminRoutes);
 app.use("/videos", express.static(path.join(__dirname, "output")));
 

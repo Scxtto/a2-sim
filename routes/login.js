@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
+  RespondToAuthChallengeCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
 
 const { getClientId } = require("../utility/secretHandler");
