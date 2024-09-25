@@ -10,7 +10,7 @@ const { getClientId } = require("../utility/secretHandler"); // Secure storage f
 const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" });
 
 // Route to handle user registration and auto-confirm email
-router.post("/register", async (req, res) => {
+router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   try {
