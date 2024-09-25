@@ -3,7 +3,6 @@ const router = express.Router();
 const {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
-  RespondToAuthChallengeCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
 
 const { getClientId } = require("../utility/secretHandler");
@@ -13,53 +12,25 @@ const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" }); 
 // Route to login a user
 router.post("/", async (req, res) => {
   console.log("Logging in user: ", req.body);
-  const { email, password, newPassword, session } = req.body;
+  const { email, password } = req.body;
   const clientId = await getClientId();
   console.log("Using password: ", password);
   console.log("Using client ID: ", clientId);
 
+  const command = new InitiateAuthCommand({
+    AuthFlow: "USER_PASSWORD_AUTH", // Standard auth flow for user/password
+    ClientId: clientId,
+    AuthParameters: {
+      USERNAME: email,
+      PASSWORD: password,
+    },
+  });
+
   try {
-    let command;
-
-    if (session && newPassword) {
-      // Handle the NEW_PASSWORD_REQUIRED challenge
-      command = new RespondToAuthChallengeCommand({
-        ChallengeName: "NEW_PASSWORD_REQUIRED",
-        ClientId: clientId,
-        ChallengeResponses: {
-          USERNAME: email,
-          NEW_PASSWORD: newPassword,
-        },
-        Session: session,
-      });
-    } else {
-      // Standard login flow
-      command = new InitiateAuthCommand({
-        AuthFlow: "USER_PASSWORD_AUTH",
-        ClientId: clientId,
-        AuthParameters: {
-          USERNAME: email,
-          PASSWORD: password,
-        },
-      });
-    }
-
     const response = await client.send(command);
-
-    if (response.ChallengeName === "NEW_PASSWORD_REQUIRED") {
-      console.log("Challenge required: NEW_PASSWORD_REQUIRED");
-
-      // Send the challenge information back to the frontend so they can prompt for a new password
-      return res.status(200).json({
-        challenge: "NEW_PASSWORD_REQUIRED",
-        session: response.Session,
-        challengeParams: response.ChallengeParameters,
-      });
-    }
-
     console.log("Login successful:", response);
 
-    // Handle successful login response
+    // The response contains tokens, including an ID token, access token, and refresh token
     res.status(200).json({
       idToken: response.AuthenticationResult.IdToken,
       accessToken: response.AuthenticationResult.AccessToken,

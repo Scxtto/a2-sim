@@ -1,17 +1,14 @@
 const express = require("express");
-const {
-  CognitoIdentityProviderClient,
-  SignUpCommand,
-  AdminConfirmSignUpCommand,
-} = require("@aws-sdk/client-cognito-identity-provider");
+const router = express.Router();
+const { CognitoIdentityProviderClient, SignUpCommand } = require("@aws-sdk/client-cognito-identity-provider");
+
 const { getClientId } = require("../utility/secretHandler");
 
-const router = express.Router();
 const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" }); // Change region as necessary
 
-// Route to register a user
+// Route to register a new user
 router.post("/register", async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password } = req.body;
   const clientId = await getClientId();
 
   const command = new SignUpCommand({
@@ -23,29 +20,17 @@ router.post("/register", async (req, res) => {
         Name: "email",
         Value: email,
       },
-      {
-        Name: "name",
-        Value: name,
-      },
     ],
   });
 
   try {
     const response = await client.send(command);
-    console.log("User registered:", response);
+    console.log("Registration successful:", response);
 
-    // Optionally auto-confirm the user (you can also set this to automatic in the Cognito user pool settings)
-    /*
-    const confirmCommand = new AdminConfirmSignUpCommand({
-      UserPoolId: userPoolId,
-      Username: email,
-    });
-    await client.send(confirmCommand);
-    */
-    res.status(201).json({ message: "User registered and confirmed successfully" });
+    res.status(200).json({ message: "User registered successfully" });
   } catch (err) {
     console.error("Error registering user:", err);
-    res.status(500).json({ message: "Error registering user", error: err.message });
+    res.status(500).json({ message: "Error registering user", error: err });
   }
 });
 
