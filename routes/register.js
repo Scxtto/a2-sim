@@ -5,7 +5,7 @@ const {
   SignUpCommand,
   AdminConfirmSignUpCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
-const { getClientId } = require("../utility/secretHandler"); // Secure storage for your Client ID
+const { getClientId, getUserPoolId } = require("../utility/secretHandler"); // Secure storage for your Client ID
 
 const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" });
 
@@ -31,9 +31,11 @@ router.post("/", async (req, res) => {
 
     const signUpResponse = await client.send(signUpCommand);
 
+    const poolId = await getUserPoolId(); // Get Cognito User Pool ID
+
     // Step 2: Auto-confirm the user
     const confirmCommand = new AdminConfirmSignUpCommand({
-      UserPoolId: "your-user-pool-id", // Replace with your Cognito User Pool ID
+      UserPoolId: poolId, // Replace with your Cognito User Pool ID
       Username: email,
     });
 
