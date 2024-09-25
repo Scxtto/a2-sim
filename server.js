@@ -7,6 +7,7 @@ const path = require("path");
 
 const usersRoutes = require("./routes/users");
 const loginRoutes = require("./routes/login");
+const registerRoutes = require("./routes/register");
 const simulateRoutes = require("./routes/simulate");
 const adminRoutes = require("./routes/admin");
 const { createHistoryTable } = require("./utility/rdsHandler");
@@ -20,6 +21,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 
 app.use("/users", usersRoutes);
 app.use("/login", loginRoutes);
+app.use("/register", registerRoutes);
 app.use("/simulate", simulateRoutes);
 app.use("/admin", adminRoutes);
 app.use("/videos", express.static(path.join(__dirname, "output")));
