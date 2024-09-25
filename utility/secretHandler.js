@@ -83,7 +83,7 @@ async function getUserPoolId() {
   try {
     response = await client.send(
       new GetSecretValueCommand({
-        SecretId: process.env.COGNITO_SECRET, // Assumes you stored the pool ID under COGNITO_SECRET
+        SecretId: process.env.COGNITO_SECRET,
         VersionStage: "AWSCURRENT",
       })
     );
@@ -93,7 +93,7 @@ async function getUserPoolId() {
   }
 
   const secret = JSON.parse(response.SecretString);
-  return secret.user_id;
+  return secret.pool_id;
 }
 
 // New function to retrieve the Cognito Client ID
@@ -107,7 +107,7 @@ async function getClientId() {
   try {
     response = await client.send(
       new GetSecretValueCommand({
-        SecretId: process.env.COGNITO_SECRET, // Assumes you stored the client ID under COGNITO_SECRET
+        SecretId: process.env.COGNITO_SECRET,
         VersionStage: "AWSCURRENT",
       })
     );
