@@ -30,7 +30,7 @@ router.post("/setup", async (req, res) => {
   }
 });
 
-router.post("/mfa/verify", async (req, res) => {
+router.post("/verify", async (req, res) => {
   const { session, mfaCode } = req.body; // Use session and MFA code
 
   try {
