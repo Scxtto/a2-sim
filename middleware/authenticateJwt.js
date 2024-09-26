@@ -35,6 +35,9 @@ const authenticateJWT = async (req, res, next) => {
     const IdTokenVerifyResult = await idVerifier.verify(token);
 
     console.log("IdTokenVerifyResult: ", IdTokenVerifyResult);
+    req.decodedemail = IdTokenVerifyResult.email;
+    console.log("Decoded email: ", req.decodedemail);
+
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
