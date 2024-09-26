@@ -5,6 +5,7 @@ const {
   CognitoIdentityProviderClient,
   AssociateSoftwareTokenCommand,
   VerifySoftwareTokenCommand,
+  RespondToAuthChallengeCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
 const { getClientId } = require("../utility/secretHandler");
 
