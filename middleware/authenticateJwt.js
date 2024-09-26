@@ -10,6 +10,11 @@ const authenticateJWT = async (req, res, next) => {
     });
   }
 
+  console.log("Authenticating JWT token...");
+  console.log("Request headers: ", req.headers);
+
+  console.log("authorization: ", req.headers.authorization);
+
   try {
     const bearerToken = req.headers.authorization.split(" ");
 
@@ -17,7 +22,7 @@ const authenticateJWT = async (req, res, next) => {
       return res.status(401).json({ error: true, message: "Authorization header is malformed" });
     }
     const token = bearerToken[1];
-
+    console.log("Token: ", token);
     const client_id = await getClientId();
     const pool_id = await getUserPoolId();
 
