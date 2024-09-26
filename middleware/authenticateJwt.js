@@ -1,7 +1,8 @@
 // Middleware to authenticate JWT
-const jwt = require("jsonwebtoken");
+const jwt = require("aws-jwt-verify");
+const { getClientId, getUserPoolId } = require("../utility/secretHandler");
 
-const authenticateJWT = (req, res, next) => {
+const authenticateJWT = async (req, res, next) => {
   if (!req.headers.authorization) {
     return res.status(401).json({
       error: true,
@@ -17,10 +18,18 @@ const authenticateJWT = (req, res, next) => {
     }
     const token = bearerToken[1];
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.decodedemail = decoded.email;
+    const client_id = await getClientId();
+    const pool_id = await getUserPoolId();
 
-    console.log("JWT token verified");
+    const idVerifier = jwt.CognitoJwtVerifier.create({
+      userPoolId: pool_id,
+      tokenUse: "id",
+      clientId: client_id,
+    });
+
+    const IdTokenVerifyResult = await idVerifier.verify(token);
+
+    console.log("IdTokenVerifyResult: ", IdTokenVerifyResult);
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
