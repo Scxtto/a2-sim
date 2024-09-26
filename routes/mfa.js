@@ -12,6 +12,7 @@ const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" });
 // MFA Setup: /mfa/setup
 router.post("/setup", async (req, res) => {
   const { session } = req.body; // Use session from the challenge response
+  console.log("Initiating MFA setup with session: ", session);
 
   try {
     const command = new AssociateSoftwareTokenCommand({
