@@ -11,6 +11,7 @@ const registerRoutes = require("./routes/register");
 const simulateRoutes = require("./routes/simulate");
 const adminRoutes = require("./routes/admin");
 const mfaRoutes = require("./routes/mfa");
+const tokenRoutes = require("./routes/token");
 const { createHistoryTable } = require("./utility/rdsHandler");
 const { createTable } = require("./utility/dynamoHandler");
 
@@ -26,6 +27,7 @@ app.use("/register", registerRoutes);
 app.use("/simulate", simulateRoutes);
 app.use("/mfa", mfaRoutes);
 app.use("/admin", adminRoutes);
+app.use("/token", tokenRoutes);
 app.use("/videos", express.static(path.join(__dirname, "output")));
 
 createTable();
