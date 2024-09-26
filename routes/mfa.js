@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const qrcode = require("qrcode");
 const {
   CognitoIdentityProviderClient,
   AssociateSoftwareTokenCommand,
@@ -18,10 +19,16 @@ router.post("/setup", async (req, res) => {
     });
 
     const response = await client.send(command);
+    const secretCode = response.SecretCode;
+    const issuer = "Spaghetti Sim"; // Replace with your app's name
+    const otpauthURI = `otpauth://totp/${issuer}?secret=${secretCode}&issuer=${issuer}&digits=6&period=30`;
+
+    const qrCodeImageUrl = await qrcode.toDataURL(otpauthURI);
 
     // Send the secret code (to be scanned by the user into their authenticator app)
     res.status(200).json({
-      secretCode: response.SecretCode, // This is the code the user will scan
+      qrCodeImageUrl,
+      secretCode, // This is the code the user will scan
       session: response.Session, // Keep the session for next steps
     });
   } catch (err) {
@@ -40,6 +47,7 @@ router.post("/verify", async (req, res) => {
     });
 
     const response = await client.send(command);
+    console.log("MFA verification response: ", response);
 
     // Check if the verification was successful
     if (response.Status === "SUCCESS") {
