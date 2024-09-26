@@ -86,7 +86,7 @@ router.post("/authenticate", async (req, res) => {
     // Respond to the MFA challenge
     const command = new RespondToAuthChallengeCommand({
       ChallengeName: "SOFTWARE_TOKEN_MFA", // For TOTP (software-based MFA)
-      ClientId: Respond, // Add your Cognito Client ID here
+      ClientId: clientID, // Add your Cognito Client ID here
       Session: session, // Use session returned from login step
       ChallengeResponses: {
         USERNAME: email, // Email or username
