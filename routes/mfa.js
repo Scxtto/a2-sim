@@ -22,7 +22,7 @@ router.post("/setup", async (req, res) => {
     const response = await client.send(command);
     const secretCode = response.SecretCode;
     console.log("beep boop");
-    console.log(secretCode);
+    console.log(response);
     console.log("boop beep");
     const issuer = "Spaghetti Sim"; // Replace with your app's name
     const otpauthURI = `otpauth://totp/${issuer}?secret=${secretCode}&issuer=${issuer}&digits=6&period=30`;
@@ -53,7 +53,7 @@ router.post("/verify", async (req, res) => {
       Session: session, // Use session here, not accessToken
     });
 
-    const responses = await client.send(command);
+    const responses = await client.send(commands);
 
     const command = new VerifySoftwareTokenCommand({
       Session: session, // Use session here, not accessToken
