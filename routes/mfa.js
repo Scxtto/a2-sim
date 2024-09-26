@@ -40,6 +40,10 @@ router.post("/setup", async (req, res) => {
 router.post("/verify", async (req, res) => {
   const { session, mfaCode } = req.body; // Use session and MFA code
 
+  console.log("Verifying MFA setup with code: ", mfaCode);
+  console.log("Using session: ", session);
+  console.log("Request body: ", req.body);
+
   try {
     const command = new VerifySoftwareTokenCommand({
       Session: session, // Use session here, not accessToken
