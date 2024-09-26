@@ -21,7 +21,9 @@ router.post("/setup", async (req, res) => {
 
     const response = await client.send(command);
     const secretCode = response.SecretCode;
+    console.log("beep boop");
     console.log(secretCode);
+    console.log("boop beep");
     const issuer = "Spaghetti Sim"; // Replace with your app's name
     const otpauthURI = `otpauth://totp/${issuer}?secret=${secretCode}&issuer=${issuer}&digits=6&period=30`;
 
