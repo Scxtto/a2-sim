@@ -46,7 +46,6 @@ router.post("/", async (req, res) => {
     res.status(200).json({
       message: "User registered and confirmed successfully",
       userSub: signUpResponse.UserSub,
-      session: signUpResponse.Session,
     });
   } catch (err) {
     console.error("Error during registration:", err);

@@ -31,14 +31,24 @@ router.post("/", async (req, res) => {
     const response = await client.send(command);
     console.log("Login successful:", response);
 
-    // The response contains tokens, including an ID token, access token, and refresh token
-    res.status(200).json({
-      idToken: response.AuthenticationResult.IdToken,
-      accessToken: response.AuthenticationResult.AccessToken,
-      refreshToken: response.AuthenticationResult.RefreshToken,
-      token_type: "Bearer",
-      expires_in: response.AuthenticationResult.ExpiresIn,
-    });
+    // Check if a challenge is returned
+    if (response.ChallengeName) {
+      // If there's a challenge (e.g., MFA_SETUP, SMS_MFA), return it to the client
+      res.status(200).json({
+        ChallengeName: response.ChallengeName,
+        ChallengeParameters: response.ChallengeParameters,
+        Session: response.Session, // The session is needed to complete the challenge
+      });
+    } else {
+      // The response contains tokens, including an ID token, access token, and refresh token
+      res.status(200).json({
+        idToken: response.AuthenticationResult.IdToken,
+        accessToken: response.AuthenticationResult.AccessToken,
+        refreshToken: response.AuthenticationResult.RefreshToken,
+        token_type: "Bearer",
+        expires_in: response.AuthenticationResult.ExpiresIn,
+      });
+    }
   } catch (err) {
     console.error("Error logging in:", err);
     res.status(401).json({ message: "Invalid email or password" });
