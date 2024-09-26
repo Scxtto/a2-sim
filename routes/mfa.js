@@ -6,6 +6,7 @@ const {
   AssociateSoftwareTokenCommand,
   VerifySoftwareTokenCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
+const { getClientId } = require("../utility/secretHandler");
 
 const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" });
 
@@ -69,6 +70,48 @@ router.post("/verify", async (req, res) => {
   } catch (err) {
     console.error("Error verifying MFA setup:", err);
     res.status(500).json({ message: "Error verifying MFA setup", error: err });
+  }
+});
+
+router.post("/authenticate", async (req, res) => {
+  const { session, mfaCode, email } = req.body; // Extract session, MFA code, and email
+
+  console.log("Authenticating user with MFA code: ", mfaCode);
+  console.log("Using session: ", session);
+  console.log("Request body: ", req.body);
+
+  try {
+    clientID = await getClientId();
+    // Respond to the MFA challenge
+    const command = new RespondToAuthChallengeCommand({
+      ChallengeName: "SOFTWARE_TOKEN_MFA", // For TOTP (software-based MFA)
+      ClientId: Respond, // Add your Cognito Client ID here
+      Session: session, // Use session returned from login step
+      ChallengeResponses: {
+        USERNAME: email, // Email or username
+        SOFTWARE_TOKEN_MFA_CODE: mfaCode, // MFA code entered by the user
+      },
+    });
+
+    const response = await client.send(command);
+
+    console.log("MFA authentication response: ", response);
+
+    // If authentication is successful, return tokens (idToken, accessToken, refreshToken)
+    if (response.AuthenticationResult) {
+      res.status(200).json({
+        idToken: response.AuthenticationResult.IdToken,
+        accessToken: response.AuthenticationResult.AccessToken,
+        refreshToken: response.AuthenticationResult.RefreshToken,
+        token_type: response.AuthenticationResult.TokenType,
+        expires_in: response.AuthenticationResult.ExpiresIn,
+      });
+    } else {
+      res.status(400).json({ message: "Failed to authenticate MFA" });
+    }
+  } catch (err) {
+    console.error("Error during MFA authentication:", err);
+    res.status(500).json({ message: "Error during MFA authentication", error: err });
   }
 });
 
