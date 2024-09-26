@@ -23,6 +23,7 @@ router.post("/", async (req, res) => {
     });
 
     const response = await client.send(command);
+    console.log("Exchanging code for tokens:", response);
     res.json({
       idToken: response.AuthenticationResult.IdToken,
       accessToken: response.AuthenticationResult.AccessToken,
