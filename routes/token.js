@@ -8,7 +8,7 @@ const { getClientId } = require("../utility/secretHandler");
 
 const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" });
 
-router.post("/token", async (req, res) => {
+router.post("/", async (req, res) => {
   const { code } = req.body;
 
   try {
