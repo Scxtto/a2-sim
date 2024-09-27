@@ -4,7 +4,7 @@ const {
   CognitoIdentityProviderClient,
   SignUpCommand,
   AdminConfirmSignUpCommand,
-  AssociateSoftwareTokenCommand,
+  AdminAddUserToGroupCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
 const { getClientId, getUserPoolId } = require("../utility/secretHandler"); // Secure storage for your Client ID
 
@@ -36,11 +36,20 @@ router.post("/", async (req, res) => {
 
     // Step 2: Auto-confirm the user
     const confirmCommand = new AdminConfirmSignUpCommand({
-      UserPoolId: poolId, // Replace with your Cognito User Pool ID
+      UserPoolId: poolId,
       Username: email,
     });
 
     await client.send(confirmCommand); // Confirm the user
+
+    // Step 3: Assign user to the group
+    const addToGroupCommand = new AdminAddUserToGroupCommand({
+      UserPoolId: poolId,
+      Username: email,
+      GroupName: "user",
+    });
+
+    await client.send(addToGroupCommand); // Assign user to the group
 
     // Send success response back to client
     res.status(200).json({
