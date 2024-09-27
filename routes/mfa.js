@@ -8,7 +8,7 @@ const {
   RespondToAuthChallengeCommand,
   AdminListGroupsForUserCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
-const { getClientId } = require("../utility/secretHandler");
+const { getClientId, getUserPoolId } = require("../utility/secretHandler");
 
 const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" });
 
