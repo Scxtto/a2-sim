@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
       return res.status(401).json({ error: true, message: "Authorization header is malformed" });
     }
     const token = bearerToken[1];
-    console.log("Token: ", token);
+    //console.log("Token: ", token);
     const client_id = await getClientId();
     const pool_id = await getUserPoolId();
 

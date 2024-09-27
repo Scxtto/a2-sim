@@ -14,7 +14,7 @@ const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" });
 // MFA Setup: /mfa/setup
 router.post("/setup", async (req, res) => {
   const { session } = req.body; // Use session from the challenge response
-  console.log("Initiating MFA setup with session: ", session);
+  //console.log("Initiating MFA setup with session: ", session);
 
   try {
     const command = new AssociateSoftwareTokenCommand({
@@ -23,9 +23,9 @@ router.post("/setup", async (req, res) => {
 
     const response = await client.send(command);
     const secretCode = response.SecretCode;
-    console.log("beep boop");
-    console.log(response);
-    console.log("boop beep");
+    //console.log("beep boop");
+    //console.log(response);
+    //console.log("boop beep");
     const issuer = "Spaghetti Sim"; // Replace with your app's name
     const otpauthURI = `otpauth://totp/${issuer}?secret=${secretCode}&issuer=${issuer}&digits=6&period=30`;
 
@@ -46,9 +46,9 @@ router.post("/setup", async (req, res) => {
 router.post("/verify", async (req, res) => {
   const { session, mfaCode } = req.body; // Use session and MFA code
 
-  console.log("Verifying MFA setup with code: ", mfaCode);
-  console.log("Using session: ", session);
-  console.log("Request body: ", req.body);
+  //console.log("Verifying MFA setup with code: ", mfaCode);
+  //console.log("Using session: ", session);
+  //console.log("Request body: ", req.body);
 
   try {
     const command = new VerifySoftwareTokenCommand({
@@ -57,7 +57,7 @@ router.post("/verify", async (req, res) => {
     });
 
     const response = await client.send(command);
-    console.log("MFA verification response: ", response);
+    //console.log("MFA verification response: ", response);
 
     // Check if the verification was successful
     if (response.Status === "SUCCESS") {
@@ -77,9 +77,9 @@ router.post("/verify", async (req, res) => {
 router.post("/authenticate", async (req, res) => {
   const { session, mfaCode, email } = req.body; // Extract session, MFA code, and email
 
-  console.log("Authenticating user with MFA code: ", mfaCode);
-  console.log("Using session: ", session);
-  console.log("Request body: ", req.body);
+  //console.log("Authenticating user with MFA code: ", mfaCode);
+  //console.log("Using session: ", session);
+  //console.log("Request body: ", req.body);
 
   try {
     clientID = await getClientId();
@@ -96,7 +96,7 @@ router.post("/authenticate", async (req, res) => {
 
     const response = await client.send(command);
 
-    console.log("MFA authentication response: ", response);
+    //console.log("MFA authentication response: ", response);
 
     // If authentication is successful, return tokens (idToken, accessToken, refreshToken)
     if (response.AuthenticationResult) {

@@ -10,7 +10,7 @@ async function getRdsAddress() {
       })
     );
 
-    console.log(response.Parameter.Value);
+    //console.log(response.Parameter.Value);
 
     return response.Parameter.Value;
   } catch (error) {

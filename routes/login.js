@@ -12,11 +12,11 @@ const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" }); 
 
 // Route to login a user
 router.post("/", async (req, res) => {
-  console.log("Logging in user: ", req.body);
+  //console.log("Logging in user: ", req.body);
   const { email, password } = req.body;
   const clientId = await getClientId();
-  console.log("Using password: ", password);
-  console.log("Using client ID: ", clientId);
+  //console.log("Using password: ", password);
+  //console.log("Using client ID: ", clientId);
 
   const command = new InitiateAuthCommand({
     AuthFlow: "USER_PASSWORD_AUTH", // Standard auth flow for user/password
@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
 
   try {
     const response = await client.send(command);
-    console.log("Login successful:", response);
+    //console.log("Login successful:", response);
 
     // Check if a challenge is returned
     if (response.ChallengeName) {

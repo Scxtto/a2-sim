@@ -18,7 +18,7 @@ async function authenticateUser(username, password) {
     region: "ap-southeast-2",
   });
 
-  console.log("Authenticating user:", username);
+  //console.log("Authenticating user:", username);
 
   // Prepare the auth command for Cognito
   const command = new InitiateAuthCommand({
@@ -33,7 +33,7 @@ async function authenticateUser(username, password) {
   try {
     // Get authentication tokens from Cognito
     const res = await client.send(command);
-    console.log("Authentication successful:", res);
+    //console.log("Authentication successful:", res);
 
     // Retrieve ID Token from the authentication result
     const idToken = res.AuthenticationResult.IdToken;
@@ -44,7 +44,7 @@ async function authenticateUser(username, password) {
       userPoolId: userPoolId,
     });
 
-    console.log("ID Token verified:", IdTokenVerifyResult);
+    //console.log("ID Token verified:", IdTokenVerifyResult);
 
     // Return the tokens and verification result
     return {

@@ -42,7 +42,7 @@ async function createTable() {
     const response = await client.send(command);
     console.log("Create Table command response:", response);
   } catch (err) {
-    console.log("Error creating table:", err);
+    //console.log("Error creating table:", err);
   }
 }
 
@@ -106,7 +106,7 @@ async function addPreset(email, presetItem) {
 
   try {
     const response = await docClient.send(command);
-    //console.log("Preset added successfully:", response);
+    console.log("Preset added successfully:", response);
   } catch (err) {
     console.log("Error adding preset:", err);
   }
@@ -132,10 +132,10 @@ async function loadPresets(email) {
   try {
     const response = await docClient.send(command);
     if (response.Item && response.Item.presets) {
-      //console.log("Presets loaded successfully:", response.Item.presets);
+      console.log("Presets loaded successfully:", response.Item.presets);
       return response.Item.presets;
     } else {
-      //console.log("No presets found for this email.");
+      console.log("No presets found for this email.");
       return [];
     }
   } catch (err) {
