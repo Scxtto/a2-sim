@@ -14,6 +14,7 @@ const mfaRoutes = require("./routes/mfa");
 const tokenRoutes = require("./routes/token");
 const { createHistoryTable } = require("./utility/rdsHandler");
 const { createTable } = require("./utility/dynamoHandler");
+const { deleteAllFilesInOutputFolder } = require("./processes/clearOutput");
 
 const app = express();
 const port = 5000;
@@ -30,6 +31,7 @@ app.use("/admin", adminRoutes);
 app.use("/token", tokenRoutes);
 app.use("/videos", express.static(path.join(__dirname, "output")));
 
+deleteAllFilesInOutputFolder();
 createTable();
 createHistoryTable();
 
