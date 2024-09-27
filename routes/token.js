@@ -9,7 +9,7 @@ const jwt = require("aws-jwt-verify");
 
 const client = new CognitoIdentityProviderClient({ region: "ap-southeast-2" });
 
-router.post("/token", async (req, res) => {
+router.post("/", async (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401).json({
       error: true,
