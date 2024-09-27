@@ -6,6 +6,7 @@ const {
   AssociateSoftwareTokenCommand,
   VerifySoftwareTokenCommand,
   RespondToAuthChallengeCommand,
+  AdminListGroupsForUserCommand,
 } = require("@aws-sdk/client-cognito-identity-provider");
 const { getClientId } = require("../utility/secretHandler");
 
@@ -100,12 +101,26 @@ router.post("/authenticate", async (req, res) => {
 
     // If authentication is successful, return tokens (idToken, accessToken, refreshToken)
     if (response.AuthenticationResult) {
+      // Check if the user is part of the Admin group
+      const poolId = await getUserPoolId();
+
+      const listGroupsCommand = new AdminListGroupsForUserCommand({
+        UserPoolId: poolId,
+        Username: email,
+      });
+
+      const groupResponse = await client.send(listGroupsCommand);
+
+      // Check if the user belongs to the Admin group
+      const isAdmin = groupResponse.Groups.some((group) => group.GroupName === "admin") ? true : false;
+
       res.status(200).json({
         idToken: response.AuthenticationResult.IdToken,
         accessToken: response.AuthenticationResult.AccessToken,
         refreshToken: response.AuthenticationResult.RefreshToken,
         token_type: response.AuthenticationResult.TokenType,
         expires_in: response.AuthenticationResult.ExpiresIn,
+        isAdmin: isAdmin, // True if user is in Admin group, false otherwise
       });
     } else {
       res.status(400).json({ message: "Failed to authenticate MFA" });
