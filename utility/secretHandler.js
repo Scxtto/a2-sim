@@ -11,13 +11,11 @@ async function getJWTSecret() {
     response = await client.send(
       new GetSecretValueCommand({
         SecretId: process.env.JWT_SECRET,
-        VersionStage: "AWSCURRENT", // VersionStage defaults to AWSCURRENT if unspecified
+        VersionStage: "AWSCURRENT",
       })
     );
   } catch (error) {
     console.log("Error fetching secret: ", error);
-    // For a list of exceptions thrown, see
-    // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
     throw error;
   }
 

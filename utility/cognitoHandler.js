@@ -3,9 +3,9 @@ const jwt = require("aws-jwt-verify");
 const { getUserPoolId, getClientId } = require("./secretsHandler");
 
 const idVerifier = jwt.CognitoJwtVerifier.create({
-  tokenUse: "id", // Verifying ID tokens
-  clientId: null, // This will be fetched dynamically from Secrets Manager
-  userPoolId: null, // This will be fetched dynamically from Secrets Manager
+  tokenUse: "id",
+  clientId: null,
+  userPoolId: null,
 });
 
 async function authenticateUser(username, password) {

@@ -18,7 +18,7 @@ async function createTable() {
       },
       {
         AttributeName: sortKey,
-        AttributeType: "S", // Setting the sort key to String type
+        AttributeType: "S",
       },
     ],
     KeySchema: [
@@ -54,7 +54,7 @@ async function addHistory(email, historyItem) {
   //console.log("History item:", historyItem);
 
   const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client, {
-    removeUndefinedValues: true, // Ensures that undefined values are removed
+    removeUndefinedValues: true,
   });
 
   const command = new DynamoDBLib.UpdateCommand({
@@ -65,8 +65,8 @@ async function addHistory(email, historyItem) {
       "#history": "history",
     },
     ExpressionAttributeValues: {
-      ":historyItem": [historyItem], // The new history item to append
-      ":empty_list": [], // Initialize as an empty list if history doesn't exist
+      ":historyItem": [historyItem],
+      ":empty_list": [],
     },
     ReturnValues: "UPDATED_NEW",
   });
@@ -87,7 +87,7 @@ async function addPreset(email, presetItem) {
   //console.log("Preset item:", presetItem);
 
   const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client, {
-    removeUndefinedValues: true, // Ensures that undefined values are removed
+    removeUndefinedValues: true,
   });
 
   const command = new DynamoDBLib.UpdateCommand({
@@ -98,8 +98,8 @@ async function addPreset(email, presetItem) {
       "#presets": "presets",
     },
     ExpressionAttributeValues: {
-      ":presetItem": [presetItem], // The new preset item to append
-      ":empty_list": [], // Initialize as an empty list if presets don't exist
+      ":presetItem": [presetItem],
+      ":empty_list": [],
     },
     ReturnValues: "UPDATED_NEW",
   });
@@ -123,7 +123,7 @@ async function loadPresets(email) {
   const command = new DynamoDBLib.GetCommand({
     TableName: tableName,
     Key: { "qut-username": qutUsername, [sortKey]: email },
-    ProjectionExpression: "#presets", // Only retrieve the presets attribute
+    ProjectionExpression: "#presets",
     ExpressionAttributeNames: {
       "#presets": "presets",
     },
