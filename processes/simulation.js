@@ -33,6 +33,7 @@ const runSimulation = async (simulationParams, ffmpeg, simulationResults, aspect
   });
 
   let binCounter = 0;
+  console.log("bin Good");
 
   // Run the simulation for the specified number of ticks
   let startTime = Date.now();
@@ -102,6 +103,7 @@ const runSimulation = async (simulationParams, ffmpeg, simulationResults, aspect
         };
       });
 
+      console.log("reset Good");
       // Reset bins and counter
       creatureCountBin = 0;
       foodCountBin = 0;
@@ -128,11 +130,18 @@ const runSimulation = async (simulationParams, ffmpeg, simulationResults, aspect
       );
     }
 
+    console.log("babout to frame");
     const frame = generateFrame(environment, aspectRatio);
     const canContinue = ffmpeg.stdin.write(frame);
+
+    console.log("frame generated");
     if (!canContinue) {
+      console.log("try send Good");
       await new Promise((resolve) => ffmpeg.stdin.once("drain", resolve));
+
+      console.log("Good sent");
     }
+    console.log("frame done");
   }
 
   console.log("All frames written, ending FFmpeg stdin");
