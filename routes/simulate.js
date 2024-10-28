@@ -4,7 +4,6 @@ const { spawn } = require("child_process");
 const runSimulation = require("../processes/simulation"); // Adjust the path as necessary
 
 const { authenticateJWT } = require("../middleware/authenticateJwt");
-const { sendHistoryToDataRx, sendVideoToDataRx, sendRecordToDataRx } = require("../utility/dataRx");
 const { createHistoryObject } = require("../processes/logResults");
 const { TextEncoder } = require("util"); // For encoding the JSON string into bytes
 
@@ -96,14 +95,14 @@ router.post("/", authenticateJWT, async (req, res) => {
 
           const historyData = await createHistoryObject(unique_id, simulationParams, simulationResults);
 
-          sendHistoryToDataRx(req.decodedemail, historyData);
+          //sendHistoryToDataRx(req.decodedemail, historyData);
 
           //fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
           //console.log(" history added successfully");
           //console.log("Attempting to retrieve history");
           //await retrieveAll(req.decodedemail);
 
-          sendVideoToDataRx(uniqueVideoName, videoPath);
+          //sendVideoToDataRx(uniqueVideoName, videoPath);
 
           const simEnd = process.hrtime(simStart);
           const duration = simEnd[0] + simEnd[1] / 1e6 / 1000;
@@ -117,17 +116,17 @@ router.post("/", authenticateJWT, async (req, res) => {
           //console.log(`Cost Estimate: $${costEst.toFixed(2)}`);
           //console.log(`Result file size: ${fileSize.toFixed(2)} MB`);
 
-          sendRecordToDataRx(
-            req.decodedemail,
-            unique_id,
-            costEst,
-            simulationTimestamp,
-            "success",
-            "m5.large",
-            fileSize,
-            duration,
-            null
-          );
+          // /sendRecordToDataRx(
+          //   req.decodedemail,
+          //   unique_id,
+          //   costEst,
+          //   simulationTimestamp,
+          //   "success",
+          //   "m5.large",
+          //   fileSize,
+          //   duration,
+          //   null
+          // );
 
           //const presignedURL = await getPresignedURL(uniqueVideoName);
 
