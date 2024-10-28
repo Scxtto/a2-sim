@@ -1,18 +1,16 @@
 const { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } = require("@aws-sdk/client-sqs");
 
 // Initialize AWS SDK clients
-const sqsClient = new SQSClient({ region: "ap-southeast-2" });
+const sqsClient = new SQSClient({ region: process.env.AWS_REGION });
 const { processSimulation } = require("./processSimulation");
 
 // Define queue URLs and bucket name
-const PENDING_QUEUE_URL = "https://sqs.ap-southeast-2.amazonaws.com/your-account-id/pending-queue";
-
 async function pollPendingQueue() {
   console.log("Polling pending queue for new jobs...");
 
   try {
     const receiveParams = {
-      QueueUrl: PENDING_QUEUE_URL,
+      QueueUrl: process.env.PENDING_QUEUE_URL,
       MaxNumberOfMessages: 1,
       WaitTimeSeconds: 10, // Long-poll for efficiency
       VisibilityTimeout: 300, // Time given to process the message before it becomes visible again
@@ -32,7 +30,9 @@ async function pollPendingQueue() {
       await processSimulation(uniqueId);
 
       // Delete the message from the pending queue after processing
-      await sqsClient.send(new DeleteMessageCommand({ QueueUrl: PENDING_QUEUE_URL, ReceiptHandle }));
+      await sqsClient.send(
+        new DeleteMessageCommand({ QueueUrl: process.env.PENDING_QUEUE_URL, ReceiptHandle })
+      );
       console.log("Job processed and removed from pending queue:", uniqueId);
     }
   } catch (error) {
