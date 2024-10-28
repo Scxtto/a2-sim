@@ -1,157 +1,157 @@
-const express = require("express");
-const path = require("path");
-const { spawn } = require("child_process");
-const runSimulation = require("../processes/simulation"); // Adjust the path as necessary
+// const express = require("express");
+// const path = require("path");
+// const { spawn } = require("child_process");
+// const runSimulation = require("../processes/simulation"); // Adjust the path as necessary
 
-const { authenticateJWT } = require("../middleware/authenticateJwt");
-const { createHistoryObject } = require("../processes/logResults");
-const { TextEncoder } = require("util"); // For encoding the JSON string into bytes
+// const { authenticateJWT } = require("../middleware/authenticateJwt");
+// const { createHistoryObject } = require("../processes/logResults");
+// const { TextEncoder } = require("util"); // For encoding the JSON string into bytes
 
-const router = express.Router();
+// const router = express.Router();
 
-router.post("/", authenticateJWT, async (req, res) => {
-  const simulationParams = req.body;
-  const unique_id = req.body.unique_id;
-  const simulationTimestamp = new Date().toISOString();
+// router.post("/", authenticateJWT, async (req, res) => {
+//   const simulationParams = req.body;
+//   const unique_id = req.body.unique_id;
+//   const simulationTimestamp = new Date().toISOString();
 
-  const aspectRatio = {
-    aspectWidth: 1280,
-    aspectHeight: 720,
-  };
+//   const aspectRatio = {
+//     aspectWidth: 1280,
+//     aspectHeight: 720,
+//   };
 
-  let simulationResults = {
-    creatureCount: [],
-    foodCount: [],
-    birthCount: [],
-    deathCount: [],
-    distinctCreatures: {},
-    deathTypeCount: {
-      age: 0,
-      hunger: 0,
-      predation: 0,
-    },
-  };
+//   let simulationResults = {
+//     creatureCount: [],
+//     foodCount: [],
+//     birthCount: [],
+//     deathCount: [],
+//     distinctCreatures: {},
+//     deathTypeCount: {
+//       age: 0,
+//       hunger: 0,
+//       predation: 0,
+//     },
+//   };
 
-  let { creatures } = req.body;
+//   let { creatures } = req.body;
 
-  // Initialize the storage for each speciesName
-  creatures.forEach((creature) => {
-    const speciesName = creature.speciesName;
-    if (!simulationResults.distinctCreatures[speciesName]) {
-      simulationResults.distinctCreatures[speciesName] = {
-        count: [],
-        color: {
-          r: creature.colorR,
-          g: creature.colorG,
-          b: creature.colorB,
-        },
-        births: [],
-        deaths: [],
-      };
-    }
-  });
+//   // Initialize the storage for each speciesName
+//   creatures.forEach((creature) => {
+//     const speciesName = creature.speciesName;
+//     if (!simulationResults.distinctCreatures[speciesName]) {
+//       simulationResults.distinctCreatures[speciesName] = {
+//         count: [],
+//         color: {
+//           r: creature.colorR,
+//           g: creature.colorG,
+//           b: creature.colorB,
+//         },
+//         births: [],
+//         deaths: [],
+//       };
+//     }
+//   });
 
-  try {
-    const uniqueVideoName = `simulation_${unique_id}.mp4`;
-    const uniqueResultsName = `results_${unique_id}.json`;
-    const videoPath = path.join(__dirname, "..", "output", uniqueVideoName);
-    const resultsPath = path.join(__dirname, "..", "output", uniqueResultsName);
+//   try {
+//     const uniqueVideoName = `simulation_${unique_id}.mp4`;
+//     const uniqueResultsName = `results_${unique_id}.json`;
+//     const videoPath = path.join(__dirname, "..", "output", uniqueVideoName);
+//     const resultsPath = path.join(__dirname, "..", "output", uniqueResultsName);
 
-    const simStart = process.hrtime();
+//     const simStart = process.hrtime();
 
-    //console.log("Starting simulation with params:", simulationParams);
+//     //console.log("Starting simulation with params:", simulationParams);
 
-    const ffmpeg = spawn("ffmpeg", [
-      "-y",
-      "-f",
-      "rawvideo",
-      "-pixel_format",
-      "rgb24",
-      "-video_size",
-      `${aspectRatio.aspectWidth}x${aspectRatio.aspectHeight}`,
-      "-r",
-      "30",
-      "-i",
-      "pipe:1",
-      "-c:v",
-      "libx264",
-      "-pix_fmt",
-      "yuv420p",
-      videoPath,
-    ]);
+//     const ffmpeg = spawn("ffmpeg", [
+//       "-y",
+//       "-f",
+//       "rawvideo",
+//       "-pixel_format",
+//       "rgb24",
+//       "-video_size",
+//       `${aspectRatio.aspectWidth}x${aspectRatio.aspectHeight}`,
+//       "-r",
+//       "30",
+//       "-i",
+//       "pipe:1",
+//       "-c:v",
+//       "libx264",
+//       "-pix_fmt",
+//       "yuv420p",
+//       videoPath,
+//     ]);
 
-    ffmpeg.on("close", async (code) => {
-      try {
-        if (code !== 0) {
-          console.error(`FFmpeg process exited with code ${code}`);
-          res.status(500).send("Error generating video");
-        } else {
-          //logResults(req.decodedemail, unique_id, simulationResults, simulationParams);
-          const resultData = {
-            email: req.decodedemail,
-            video: uniqueVideoName,
-            results: simulationResults,
-          };
+//     ffmpeg.on("close", async (code) => {
+//       try {
+//         if (code !== 0) {
+//           console.error(`FFmpeg process exited with code ${code}`);
+//           res.status(500).send("Error generating video");
+//         } else {
+//           //logResults(req.decodedemail, unique_id, simulationResults, simulationParams);
+//           const resultData = {
+//             email: req.decodedemail,
+//             video: uniqueVideoName,
+//             results: simulationResults,
+//           };
 
-          const historyData = await createHistoryObject(unique_id, simulationParams, simulationResults);
+//           const historyData = await createHistoryObject(unique_id, simulationParams, simulationResults);
 
-          //sendHistoryToDataRx(req.decodedemail, historyData);
+//           //sendHistoryToDataRx(req.decodedemail, historyData);
 
-          //fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
-          //console.log(" history added successfully");
-          //console.log("Attempting to retrieve history");
-          //await retrieveAll(req.decodedemail);
+//           //fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
+//           //console.log(" history added successfully");
+//           //console.log("Attempting to retrieve history");
+//           //await retrieveAll(req.decodedemail);
 
-          //sendVideoToDataRx(uniqueVideoName, videoPath);
+//           //sendVideoToDataRx(uniqueVideoName, videoPath);
 
-          const simEnd = process.hrtime(simStart);
-          const duration = simEnd[0] + simEnd[1] / 1e6 / 1000;
-          const costEst = (0.096 / 3600) * duration;
+//           const simEnd = process.hrtime(simStart);
+//           const duration = simEnd[0] + simEnd[1] / 1e6 / 1000;
+//           const costEst = (0.096 / 3600) * duration;
 
-          const jsonString = JSON.stringify(resultData);
-          const encoder = new TextEncoder();
-          const fileSize = encoder.encode(jsonString).length / 1024 / 1024;
+//           const jsonString = JSON.stringify(resultData);
+//           const encoder = new TextEncoder();
+//           const fileSize = encoder.encode(jsonString).length / 1024 / 1024;
 
-          //console.log(`Duration: ${duration.toFixed(2)} seconds`);
-          //console.log(`Cost Estimate: $${costEst.toFixed(2)}`);
-          //console.log(`Result file size: ${fileSize.toFixed(2)} MB`);
+//           //console.log(`Duration: ${duration.toFixed(2)} seconds`);
+//           //console.log(`Cost Estimate: $${costEst.toFixed(2)}`);
+//           //console.log(`Result file size: ${fileSize.toFixed(2)} MB`);
 
-          // /sendRecordToDataRx(
-          //   req.decodedemail,
-          //   unique_id,
-          //   costEst,
-          //   simulationTimestamp,
-          //   "success",
-          //   "m5.large",
-          //   fileSize,
-          //   duration,
-          //   null
-          // );
+//           // /sendRecordToDataRx(
+//           //   req.decodedemail,
+//           //   unique_id,
+//           //   costEst,
+//           //   simulationTimestamp,
+//           //   "success",
+//           //   "m5.large",
+//           //   fileSize,
+//           //   duration,
+//           //   null
+//           // );
 
-          //const presignedURL = await getPresignedURL(uniqueVideoName);
+//           //const presignedURL = await getPresignedURL(uniqueVideoName);
 
-          res.json({
-            videoUrl: presignedURL,
-            simResults: simulationResults,
-          });
-        }
-      } catch (error) {
-        console.error("Error processing request:", error);
-        res.status(500).send("Error processing request: " + error.message);
-      }
-    });
+//           res.json({
+//             videoUrl: presignedURL,
+//             simResults: simulationResults,
+//           });
+//         }
+//       } catch (error) {
+//         console.error("Error processing request:", error);
+//         res.status(500).send("Error processing request: " + error.message);
+//       }
+//     });
 
-    ffmpeg.stdin.on("error", (error) => {
-      console.error("Error writing to FFmpeg stdin:", error);
-    });
+//     ffmpeg.stdin.on("error", (error) => {
+//       console.error("Error writing to FFmpeg stdin:", error);
+//     });
 
-    await runSimulation(simulationParams, ffmpeg, simulationResults, aspectRatio);
+//     await runSimulation(simulationParams, ffmpeg, simulationResults, aspectRatio);
 
-    ffmpeg.stdin.end();
-  } catch (error) {
-    console.error("Error processing request:", error);
-    res.status(500).send("Error processing request: " + error.message);
-  }
-});
+//     ffmpeg.stdin.end();
+//   } catch (error) {
+//     console.error("Error processing request:", error);
+//     res.status(500).send("Error processing request: " + error.message);
+//   }
+// });
 
-module.exports = router;
+// module.exports = router;

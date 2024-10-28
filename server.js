@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
 
-const simulateRoutes = require("./routes/simulate");
+//const simulateRoutes = require("./routes/simulate");
 
 const { deleteAllFilesInOutputFolder } = require("./processes/clearOutput");
 const startPolling = require("./processes/pollPendingQueue");
@@ -14,7 +14,7 @@ const port = 5001;
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 
-app.use("/simulate", simulateRoutes);
+//app.use("/simulate", simulateRoutes);
 
 //deleteAllFilesInOutputFolder();
 
