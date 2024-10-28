@@ -11,8 +11,8 @@ const { v4: uuidv4 } = require("uuid");
 const router = express.Router();
 
 // Initialize S3 and SQS clients
-const s3Client = new S3Client({ region: AWS_REGION });
-const sqsClient = new SQSClient({ region: AWS_REGION });
+const s3Client = new S3Client({ region: process.env.AWS_REGION });
+const sqsClient = new SQSClient({ region: process.env.AWS_REGION });
 
 // S3 and SQS configuration
 const S3_BUCKET = process.env.S3_BUCKET;
