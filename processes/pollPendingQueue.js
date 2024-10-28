@@ -4,7 +4,8 @@ const { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } = require("@aws
 const sqsClient = new SQSClient({ region: process.env.AWS_REGION });
 const { processSimulation } = require("./processSimulation");
 
-// Define queue URLs and bucket name
+let pollingInterval; // Reference to the polling interval
+
 async function pollPendingQueue() {
   console.log("Polling pending queue for new jobs...");
 
@@ -26,6 +27,9 @@ async function pollPendingQueue() {
       const { uniqueId } = JSON.parse(Body);
       console.log("Received job with UUID:", uniqueId);
 
+      // Pause polling
+      clearInterval(pollingInterval);
+
       // Process the job
       await processSimulation(uniqueId);
 
@@ -34,6 +38,9 @@ async function pollPendingQueue() {
         new DeleteMessageCommand({ QueueUrl: process.env.PENDING_QUEUE_URL, ReceiptHandle })
       );
       console.log("Job processed and removed from pending queue:", uniqueId);
+
+      // Resume polling
+      startPolling();
     }
   } catch (error) {
     console.error("Error polling pending queue:", error);
@@ -41,6 +48,8 @@ async function pollPendingQueue() {
 }
 
 // Start polling on an interval
-module.exports = function startPolling() {
-  setInterval(pollPendingQueue, 5000); // Poll every 5 seconds
-};
+function startPolling() {
+  pollingInterval = setInterval(pollPendingQueue, 5000); // Poll every 5 seconds
+}
+
+module.exports = startPolling;
