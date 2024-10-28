@@ -72,7 +72,7 @@ router.post("/", authenticateJWT, async (req, res) => {
       "-r",
       "30",
       "-i",
-      "pipe:0",
+      "pipe:1",
       "-c:v",
       "libx264",
       "-pix_fmt",
