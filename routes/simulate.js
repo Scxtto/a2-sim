@@ -1,161 +1,110 @@
 const express = require("express");
-const path = require("path");
-const { spawn } = require("child_process");
-const runSimulation = require("../processes/simulation"); // Adjust the path as necessary
-const { v4: uuidv4 } = require("uuid"); // Use UUID for unique filenames
+const { S3Client, PutObjectCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
+const {
+  SQSClient,
+  SendMessageCommand,
+  ReceiveMessageCommand,
+  DeleteMessageCommand,
+} = require("@aws-sdk/client-sqs");
 const { authenticateJWT } = require("../middleware/authenticateJwt");
-//const { logResults } = require("../processes/logResults");
-const { writeVideoToBucket, getPresignedURL } = require("../utility/s3Handler");
-const { insertHistoryRecord } = require("../utility/rdsHandler");
-const { addHistory, retrieveAll } = require("../utility/dynamoHandler");
-const { createHistoryObject } = require("../processes/logResults");
-const { TextEncoder } = require("util"); // For encoding the JSON string into bytes
-
+const { v4: uuidv4 } = require("uuid");
 const router = express.Router();
 
+// Initialize S3 and SQS clients
+const s3Client = new S3Client({ region: AWS_REGION });
+const sqsClient = new SQSClient({ region: AWS_REGION });
+
+// S3 and SQS configuration
+const S3_BUCKET = process.env.S3_BUCKET;
+const PENDING_QUEUE_URL = process.env.PENDING_QUEUE_URL;
+const COMPLETED_QUEUE_URL = process.env.COMPLETED_QUEUE_URL;
+const AWS_REGION = process.env.AWS_REGION || "ap-southeast-2";
+
+// Step 1: /simulate Route to Receive Data
 router.post("/", authenticateJWT, async (req, res) => {
-  const simulationParams = req.body;
-  const simulationTimestamp = new Date().toISOString();
-
-  const aspectRatio = {
-    aspectWidth: 1280,
-    aspectHeight: 720,
-  };
-
-  let simulationResults = {
-    creatureCount: [],
-    foodCount: [],
-    birthCount: [],
-    deathCount: [],
-    distinctCreatures: {},
-    deathTypeCount: {
-      age: 0,
-      hunger: 0,
-      predation: 0,
-    },
-  };
-
-  let { creatures } = req.body;
-
-  // Initialize the storage for each speciesName
-  creatures.forEach((creature) => {
-    const speciesName = creature.speciesName;
-    if (!simulationResults.distinctCreatures[speciesName]) {
-      simulationResults.distinctCreatures[speciesName] = {
-        count: [],
-        color: {
-          r: creature.colorR,
-          g: creature.colorG,
-          b: creature.colorB,
-        },
-        births: [],
-        deaths: [],
-      };
-    }
-  });
-
   try {
-    const unique_id = uuidv4();
-    const uniqueVideoName = `simulation_${unique_id}.mp4`;
-    const uniqueResultsName = `results_${unique_id}.json`;
-    const videoPath = path.join(__dirname, "..", "output", uniqueVideoName);
-    const resultsPath = path.join(__dirname, "..", "output", uniqueResultsName);
+    // Generate a unique identifier for this simulation
+    const uniqueId = uuidv4();
+    req.body.uniqueId = uniqueId;
+    req.body.email = req.decodedemail;
 
-    const simStart = process.hrtime();
+    const simulationData = req.body;
 
-    //console.log("Starting simulation with params:", simulationParams);
+    // Step 2: Store simulation data in S3
+    const fileKey = `${uniqueId}.json`;
+    const s3Params = {
+      Bucket: S3_BUCKET,
+      Key: fileKey,
+      Body: JSON.stringify(simulationData),
+      ContentType: "application/json",
+    };
+    await s3Client.send(new PutObjectCommand(s3Params));
+    console.log(`Simulation data stored in S3 as ${fileKey}`);
 
-    const ffmpeg = spawn("ffmpeg", [
-      "-y",
-      "-f",
-      "rawvideo",
-      "-pixel_format",
-      "rgb24",
-      "-video_size",
-      `${aspectRatio.aspectWidth}x${aspectRatio.aspectHeight}`,
-      "-r",
-      "30",
-      "-i",
-      "pipe:0",
-      "-c:v",
-      "libx264",
-      "-pix_fmt",
-      "yuv420p",
-      videoPath,
-    ]);
+    // Step 3: Send the UUID to the pending SQS queue
+    const pendingMessageParams = {
+      QueueUrl: PENDING_QUEUE_URL,
+      MessageBody: JSON.stringify({ uniqueId }),
+    };
+    await sqsClient.send(new SendMessageCommand(pendingMessageParams));
+    console.log(`UUID ${uniqueId} sent to pending queue`);
 
-    ffmpeg.on("close", async (code) => {
-      try {
-        if (code !== 0) {
-          console.error(`FFmpeg process exited with code ${code}`);
-          res.status(500).send("Error generating video");
-        } else {
-          //logResults(req.decodedemail, unique_id, simulationResults, simulationParams);
-          const resultData = {
-            email: req.decodedemail,
-            video: uniqueVideoName,
-            results: simulationResults,
-          };
+    const pollCompletedQueue = async () => {
+      let polling = true;
+      while (polling) {
+        const receiveParams = {
+          QueueUrl: COMPLETED_QUEUE_URL,
+          MaxNumberOfMessages: 1,
+          WaitTimeSeconds: 10, // Long-polling
+        };
 
-          const historyData = await createHistoryObject(unique_id, simulationParams, simulationResults);
+        const response = await sqsClient.send(new ReceiveMessageCommand(receiveParams));
+        if (response.Messages && response.Messages.length > 0) {
+          const { Body, ReceiptHandle } = response.Messages[0];
+          const completedMessage = JSON.parse(Body);
 
-          await addHistory(req.decodedemail, historyData);
-          //fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
+          if (completedMessage.uniqueId === uniqueId) {
+            // Delete message from the completed queue
+            await sqsClient.send(new DeleteMessageCommand({ QueueUrl: COMPLETED_QUEUE_URL, ReceiptHandle }));
+            console.log(`UUID ${uniqueId} found in completed queue and deleted`);
 
-          //console.log(" history added successfully");
-          //console.log("Attempting to retrieve history");
-          //await retrieveAll(req.decodedemail);
+            // Step 5: Retrieve processed data from S3
+            const getObjectParams = {
+              Bucket: S3_BUCKET,
+              Key: `${uniqueId}-results.json`, // Assuming the processed results are stored with this naming convention
+            };
+            const resultData = await s3Client.send(new GetObjectCommand(getObjectParams));
+            const resultBody = await streamToString(resultData.Body);
 
-          writeVideoToBucket(uniqueVideoName, videoPath);
-
-          const simEnd = process.hrtime(simStart);
-          const duration = simEnd[0] + simEnd[1] / 1e6 / 1000;
-          const costEst = (0.096 / 3600) * duration;
-
-          const jsonString = JSON.stringify(resultData);
-          const encoder = new TextEncoder();
-          const fileSize = encoder.encode(jsonString).length / 1024 / 1024;
-
-          //console.log(`Duration: ${duration.toFixed(2)} seconds`);
-          //console.log(`Cost Estimate: $${costEst.toFixed(2)}`);
-          //console.log(`Result file size: ${fileSize.toFixed(2)} MB`);
-
-          await insertHistoryRecord(
-            req.decodedemail,
-            unique_id,
-            costEst,
-            simulationTimestamp,
-            "success",
-            "m5.large",
-            fileSize,
-            duration,
-            null
-          );
-
-          const presignedURL = await getPresignedURL(uniqueVideoName);
-
-          res.json({
-            videoUrl: presignedURL,
-            simResults: simulationResults,
-          });
+            // Send the processed data back to the user
+            res.json({
+              message: "Simulation completed successfully",
+              resultData: JSON.parse(resultBody),
+            });
+            polling = false; // Stop polling once the result is retrieved
+          }
         }
-      } catch (error) {
-        console.error("Error processing request:", error);
-        res.status(500).send("Error processing request: " + error.message);
+
+        // Wait briefly between polls to avoid excessive calls if job isn’t complete
+        await new Promise((resolve) => setTimeout(resolve, 5000));
       }
-    });
+    };
 
-    ffmpeg.stdin.on("error", (error) => {
-      console.error("Error writing to FFmpeg stdin:", error);
-    });
-
-    await runSimulation(simulationParams, ffmpeg, simulationResults, aspectRatio);
-
-    ffmpeg.stdin.end();
+    // Call the polling function immediately
+    await pollCompletedQueue();
   } catch (error) {
-    console.error("Error processing request:", error);
-    res.status(500).send("Error processing request: " + error.message);
+    console.error("Error in /simulate route:", error);
+    res.status(500).send("Error processing simulation request");
   }
 });
 
 module.exports = router;
+
+// Helper function to convert a stream to a string
+const streamToString = (stream) =>
+  new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+    stream.on("error", reject);
+  });
