@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 function deleteAllFilesInOutputFolder() {
-  const outputFolderPath = path.join(__dirname, "output");
+  const outputFolderPath = path.join(__dirname, "..", "output");
 
   fs.readdir(outputFolderPath, (err, files) => {
     if (err) {
