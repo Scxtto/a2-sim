@@ -7,6 +7,7 @@ const { createHistoryObject } = require("../processes/logResults");
 const { SQSClient, SendMessageCommand } = require("@aws-sdk/client-sqs");
 const { TextEncoder } = require("util");
 const runSimulation = require("../processes/simulation");
+const s3Client = new S3.S3Client({ region: "ap-southeast-2" });
 
 // Initialize SQS client
 const sqsClient = new SQSClient({ region: process.env.AWS_REGION });
