@@ -18,7 +18,7 @@ const sqsClient = new SQSClient({ region: AWS_REGION });
 const S3_BUCKET = process.env.S3_BUCKET;
 const PENDING_QUEUE_URL = process.env.PENDING_QUEUE_URL;
 const COMPLETED_QUEUE_URL = process.env.COMPLETED_QUEUE_URL;
-const AWS_REGION = process.env.AWS_REGION || "ap-southeast-2";
+const AWS_REGION = process.env.AWS_REGION;
 
 // Step 1: /simulate Route to Receive Data
 router.post("/", authenticateJWT, async (req, res) => {
