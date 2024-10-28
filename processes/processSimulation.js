@@ -99,7 +99,7 @@ async function processSimulation(uniqueId) {
         };
 
         const historyData = await createHistoryObject(unique_id, simulationParams, simulationResults);
-        await addHistory(req.decodedemail, historyData);
+        await addHistory(email, historyData);
 
         writeVideoToBucket(uniqueVideoName, videoPath);
 
