@@ -2,12 +2,9 @@ const express = require("express");
 const path = require("path");
 const { spawn } = require("child_process");
 const runSimulation = require("../processes/simulation"); // Adjust the path as necessary
-const { v4: uuidv4 } = require("uuid"); // Use UUID for unique filenames
+
 const { authenticateJWT } = require("../middleware/authenticateJwt");
-//const { logResults } = require("../processes/logResults");
-const { writeVideoToBucket, getPresignedURL } = require("../utility/s3Handler");
-const { insertHistoryRecord } = require("../utility/rdsHandler");
-const { addHistory, retrieveAll } = require("../utility/dynamoHandler");
+const { sendHistoryToDataRx, sendVideoToDataRx, sendRecordToDataRx } = require("../utility/dataRx");
 const { createHistoryObject } = require("../processes/logResults");
 const { TextEncoder } = require("util"); // For encoding the JSON string into bytes
 
@@ -15,6 +12,7 @@ const router = express.Router();
 
 router.post("/", authenticateJWT, async (req, res) => {
   const simulationParams = req.body;
+  const unique_id = req.body.unique_id;
   const simulationTimestamp = new Date().toISOString();
 
   const aspectRatio = {
@@ -55,7 +53,6 @@ router.post("/", authenticateJWT, async (req, res) => {
   });
 
   try {
-    const unique_id = uuidv4();
     const uniqueVideoName = `simulation_${unique_id}.mp4`;
     const uniqueResultsName = `results_${unique_id}.json`;
     const videoPath = path.join(__dirname, "..", "output", uniqueVideoName);
@@ -99,14 +96,14 @@ router.post("/", authenticateJWT, async (req, res) => {
 
           const historyData = await createHistoryObject(unique_id, simulationParams, simulationResults);
 
-          await addHistory(req.decodedemail, historyData);
-          //fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
+          sendHistoryToDataRx(req.decodedemail, historyData);
 
+          //fs.writeFileSync(resultsPath, JSON.stringify(resultData, null, 2), "utf-8");
           //console.log(" history added successfully");
           //console.log("Attempting to retrieve history");
           //await retrieveAll(req.decodedemail);
 
-          writeVideoToBucket(uniqueVideoName, videoPath);
+          sendVideoToDataRx(uniqueVideoName, videoPath);
 
           const simEnd = process.hrtime(simStart);
           const duration = simEnd[0] + simEnd[1] / 1e6 / 1000;
@@ -120,7 +117,7 @@ router.post("/", authenticateJWT, async (req, res) => {
           //console.log(`Cost Estimate: $${costEst.toFixed(2)}`);
           //console.log(`Result file size: ${fileSize.toFixed(2)} MB`);
 
-          await insertHistoryRecord(
+          sendRecordToDataRx(
             req.decodedemail,
             unique_id,
             costEst,
@@ -132,7 +129,7 @@ router.post("/", authenticateJWT, async (req, res) => {
             null
           );
 
-          const presignedURL = await getPresignedURL(uniqueVideoName);
+          //const presignedURL = await getPresignedURL(uniqueVideoName);
 
           res.json({
             videoUrl: presignedURL,
