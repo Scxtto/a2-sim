@@ -112,7 +112,7 @@ async function processSimulation(uniqueId) {
         const fileSize = encoder.encode(jsonString).length / 1024 / 1024;
 
         await insertHistoryRecord(
-          req.decodedemail,
+          email,
           unique_id,
           costEst,
           simulationTimestamp,
