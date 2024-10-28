@@ -6,6 +6,7 @@ require("dotenv").config();
 const simulateRoutes = require("./routes/simulate");
 
 const { deleteAllFilesInOutputFolder } = require("./processes/clearOutput");
+const startPolling = require("./processes/pollPendingQueue");
 
 const app = express();
 const port = 5001;
@@ -17,8 +18,7 @@ app.use("/simulate", simulateRoutes);
 
 //deleteAllFilesInOutputFolder();
 
-pollPendingQueue();
-
 app.listen(port, "0.0.0.0", () => {
   console.log("Simulation Server running on port 5001");
+  startPolling();
 });
