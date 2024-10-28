@@ -17,6 +17,8 @@ app.use("/simulate", simulateRoutes);
 
 //deleteAllFilesInOutputFolder();
 
+pollPendingQueue();
+
 app.listen(port, "0.0.0.0", () => {
   console.log("Simulation Server running on port 5001");
 });
