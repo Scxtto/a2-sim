@@ -109,10 +109,7 @@ router.post("/", authenticateJWT, async (req, res) => {
 
     // Step 3: Poll the completed queue and return the processed result once ready
     const resultData = await pollCompletedQueue(req.decodedemail, uniqueId);
-    res.json({
-      message: "Simulation completed successfully",
-      resultData,
-    });
+    res.status(200).json(resultData);
   } catch (error) {
     console.error("Error in /simulate route:", error);
     res.status(500).send("Error processing simulation request");
