@@ -39,6 +39,7 @@ const pollCompletedQueue = async (email, uniqueId) => {
         const completedMessage = JSON.parse(Body);
 
         if (completedMessage.uniqueId === uniqueId) {
+          console.log(completedMessage);
           const presigned = completedMessage.presignedUrl;
 
           // Found the right message, delete it from the queue
