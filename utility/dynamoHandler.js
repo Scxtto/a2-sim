@@ -79,6 +79,43 @@ async function addHistory(email, historyItem) {
   }
 }
 
+// retrieve uuid from history
+async function retrieveByUUID(email, uuid) {
+  const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
+  const docClient = DynamoDBLib.DynamoDBDocumentClient.from(client);
+
+  const command = new DynamoDBLib.GetCommand({
+    TableName: tableName,
+    Key: { "qut-username": qutUsername, [sortKey]: email },
+    ProjectionExpression: "#history",
+    ExpressionAttributeNames: {
+      "#history": "history",
+    },
+  });
+
+  try {
+    const response = await docClient.send(command);
+    if (response.Item && response.Item.history) {
+      // Filter history items by uuid
+      const historyItem = response.Item.history.find((item) => item.uuid === uuid);
+
+      if (historyItem) {
+        console.log("History item found:", historyItem);
+        return historyItem;
+      } else {
+        console.log("No history found with the provided uuid.");
+        return null;
+      }
+    } else {
+      console.log("No history found for this email.");
+      return null;
+    }
+  } catch (err) {
+    console.log("Error retrieving data:", err);
+    throw new Error("Error retrieving data: " + err.message);
+  }
+}
+
 // Function to add a preset to a specific email
 async function addPreset(email, presetItem) {
   const client = new DynamoDB.DynamoDBClient({ region: "ap-southeast-2" });
@@ -168,4 +205,4 @@ async function retrieveAll(email) {
   }
 }
 
-module.exports = { createTable, addHistory, retrieveAll, addPreset, loadPresets };
+module.exports = { createTable, addHistory, retrieveAll, addPreset, loadPresets, retrieveByUUID };
