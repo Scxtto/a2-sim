@@ -40,7 +40,7 @@ const pollCompletedQueue = async (email, uniqueId) => {
 
         if (completedMessage.uniqueId === uniqueId) {
           console.log(completedMessage);
-          const presigned = completedMessage.presignedUrl;
+          const presigned = completedMessage.presignedURL;
 
           // Found the right message, delete it from the queue
           await sqsClient.send(
