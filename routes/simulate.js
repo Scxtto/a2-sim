@@ -39,6 +39,8 @@ const pollCompletedQueue = async (email, uniqueId) => {
         const completedMessage = JSON.parse(Body);
 
         if (completedMessage.uniqueId === uniqueId) {
+          const presigned = completedMessage.presignedUrl;
+
           // Found the right message, delete it from the queue
           await sqsClient.send(
             new DeleteMessageCommand({
@@ -58,9 +60,14 @@ const pollCompletedQueue = async (email, uniqueId) => {
 
           // Return processed data to the caller
 
-          console.log("Result data:", resultData);
+          const returnPackage = {
+            videoUrl: presigned,
+            simResults: resultData.inputs,
+          };
 
-          return resultData;
+          console.log("Result data:", returnPackage);
+
+          return returnPackage;
         }
       }
     }
