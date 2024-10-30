@@ -14,6 +14,10 @@ const port = 5001;
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 //app.use("/simulate", simulateRoutes);
 
 //deleteAllFilesInOutputFolder();
