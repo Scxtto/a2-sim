@@ -14,7 +14,8 @@ const port = 5001;
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 
-app.get("/health", (req, res) => {
+// Health check endpoint
+app.get("/", (req, res) => {
   res.status(200).send("OK");
 });
 
