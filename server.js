@@ -18,6 +18,9 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.get("/", (req, res) => {
   res.status(200).send("OK");
 });
+app.get("/health", (req, res) => {
+  res.status(5000).send("unhealthy");
+});
 
 //app.use("/simulate", simulateRoutes);
 
