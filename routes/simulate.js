@@ -29,6 +29,7 @@ const pollCompletedQueue = async (email, uniqueId) => {
       QueueUrl: COMPLETED_QUEUE_URL,
       MaxNumberOfMessages: 10, // Retrieve up to 10 messages in a single request for batch processing
       WaitTimeSeconds: 5, // Long-polling
+      VisibilityTimeout: 0, // Do not lock messages in flight
     };
 
     const response = await sqsClient.send(new ReceiveMessageCommand(receiveParams));
